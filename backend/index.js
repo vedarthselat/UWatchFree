@@ -1,17 +1,22 @@
 const connectToMongo = require("./db");
 const express = require("express");
-
+const cors = require("cors");
+const mongoose = require("mongoose");
 connectToMongo();
 
 const app = express();
-
+app.use(cors());
 app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
+// Your valid API route
+app.use("/api/movies", require("./movies_route"));
+app.use("/api/users", require("./users_route"));
+
+app.use((req, res) => {
+  res.status(404).json({ error: "Invalid endpoint" });
 });
 
 const port = 4000;
 app.listen(port, () => {
-  console.log(`listening to port http://localhost:${port}`);
+  console.log(`Listening at http://localhost:${port}`);
 });
