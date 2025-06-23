@@ -11,6 +11,7 @@ app.use(express.json());
 // Your valid API route
 app.use("/api/movies", require("./movies_route"));
 app.use("/api/users", require("./users_route"));
+app.use("/api/towatchlist", require("./towatchlist_route"));
 
 app.use((req, res) => {
   res.status(404).json({ error: "Invalid endpoint" });
