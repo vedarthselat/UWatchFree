@@ -111,9 +111,23 @@ router.delete("/:movie_id", fetchuser, async (req, res) => {
   }
 });
 
-module.exports = router;
+// DELETE /towatchlist/all - Deletes all entries from the ToWatchList collection
+router.delete("/all/all", async (req, res) => {
+  try {
+    const result = await ToWatchList.deleteMany({});
+    res.status(200).json({
+      message: "All to-watch list entries deleted successfully",
+      deletedCount: result.deletedCount,
+    });
+  } catch (error) {
+    console.error("Error deleting all to-watch list entries:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
 
 
   
 
-  module.exports=router;
+module.exports=router;

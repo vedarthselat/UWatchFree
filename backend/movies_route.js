@@ -46,7 +46,7 @@ router.post(
 
     const { homepage, tagline, title, vote_average, rutime, genre } = req.body;
 
-    // try {
+    try {
       const user_id = req.user.id;
       const currentUser = await User.findById(user_id).select("-password");
       if (!currentUser) {
@@ -60,7 +60,7 @@ router.post(
         vote_average,
         rutime,
         genre,
-        user: user_id, // link movie to the logged-in user
+        user: user_id,
         poster: {
           data: req.file.buffer,
           contentType: req.file.mimetype,
@@ -69,12 +69,20 @@ router.post(
 
       await newMovie.save();
       res.status(201).json({ message: "Movie added successfully!" });
-    // } catch (error) {
-    //   console.error("Error adding movie:", error);
-    //   res.status(500).json({ error: "Internal server error." });
-    // }
+    } catch (error) {
+      if (error.code === 11000) {
+        const duplicateField = Object.keys(error.keyPattern)[0];
+        return res.status(400).json({
+          error: `Duplicate entry: ${duplicateField} must be unique.`,
+        });
+      }
+
+      console.error("Error adding movie:", error);
+      res.status(500).json({ error: "Internal server error." });
+    }
   }
 );
+
 
 
 router.get("/", async (req, res) => {
@@ -113,22 +121,24 @@ router.get("/:title", async (req, res) => {
 });
 
 
+// DELETE all movies
+router.delete("/all/all", async (req, res) => {
+  try {
+    const result = await Movie.deleteMany({});
+    res.status(200).json({
+      message: "All movies deleted successfully",
+      deletedCount: result.deletedCount
+    });
+  } catch (error) {
+    console.error("Error deleting movies:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
 
 
 
 
 
-// router.get("/:id", fetchuser, async(req, res) =>{
-//     try{
-//         const getMovies=await Movie.find();
-//         res.status(200).json(getMovies);
-
-//     }
-//     catch(error){
-//         console.error("Error fetching movies:", error);
-//         res.status(500).json({ error: "Internal server error." });
-//     }
-// });
 
 
 

@@ -8,7 +8,7 @@ const toWatchListSchema=new Schema({
         required:true
     },
     user_id:{
-        type:Schema.Types.ObjectId,
+        type:mongoose.Schema.Types.ObjectId,
         ref:"users",
         required:true
     },

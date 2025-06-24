@@ -19,7 +19,8 @@ const completedWatchListSchema = new Schema({
     },
     notes: {
         type: String,
-        required: true
+        required: true,
+        default:""
     },
     initially_watched:{
         type:Date,

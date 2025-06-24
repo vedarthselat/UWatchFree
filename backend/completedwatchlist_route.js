@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const fetchuser = require("./fetchuser`");
+const fetchuser = require("./fetchuser");
 const { body, validationResult } = require("express-validator");
 const CompletedWatchList = require("./Schema/completedWatchList");
 const Movie = require("./Schema/movies");
@@ -9,25 +9,30 @@ const ToWatchList = require("./Schema/toWatchList");
 // Add to completed watchlist
 router.post(
   "/:movie_id",
-  fetchuser,
-  body("rating", "Rating is required and must be a number").isNumeric(),
+  fetchuser, [
+  body("rating", "Rating is required and must be a number between 1 and 10").notEmpty().isFloat({ min: 1, max: 10 }), 
+   body("notes", "Notes are required").notEmpty().custom((value) => typeof value === "string") ],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
     const user_id = req.user.id;
     const movie_id = req.params.movie_id;
-    const { rating } = req.body;
+    const { rating, notes } = req.body;
 
-    try {
+    // try {
       const exists = await CompletedWatchList.findOne({ user_id, movie_id });
       if (exists) return res.status(400).json({ error: "Already in completed list" });
 
+
+      const exists2 = await ToWatchList.findOne({ user_id, movie_id });
+      if (!exists2) return res.status(400).json({ error: "Not in toWatchList" });
+      await ToWatchList.findOneAndDelete({user_id, movie_id});
       const entry = new CompletedWatchList({
         user_id,
         movie_id,
         rating,
-        notes: "",
+        notes,
       });
 
       await entry.save();
@@ -35,26 +40,29 @@ router.post(
       // Update movie rating
       const movie = await Movie.findById(movie_id);
       if (movie) {
-        const newCount = movie.vote_count + 1;
-        const newAvg = ((movie.vote_average * movie.vote_count) + Number(rating)) / newCount;
-        movie.vote_average = newAvg;
-        movie.vote_count = newCount;
-        await movie.save();
+        const {vote_average, vote_count}= movie;
+        const newCount = vote_count + 1;
+        const newAvg = ((vote_average * vote_count) + Number(rating)) / newCount;
+        const result = await Movie.findOneAndUpdate(
+          { _id: movie_id },
+          { vote_average: newAvg, vote_count: newCount },
+          { new: true }
+        );
+        if(!result) return res.status(404).json({ error: "Movie not found" });
       }
 
-      // Remove from toWatchList if exists
-      await ToWatchList.findOneAndDelete({ user_id, movie_id });
+
 
       res.status(200).json({ message: "Added to completedWatchList & rating updated", entry });
-    } catch (err) {
+    // } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Server error" });
-    }
+    // }
   }
 );
 
 // GET all completed watchlist sorted by rating
-router.get("/entries", fetchuser, async (req, res) => {
+router.get("/", fetchuser, async (req, res) => {
   const user_id = req.user.id;
   const { min_times_watched, rating_min } = req.query;
 
@@ -159,7 +167,7 @@ router.patch("/entries/:movie_id/times-watched", fetchuser, async (req, res) => 
 });
 
 // DELETE entry
-router.delete("/entries/:movie_id", fetchuser, async (req, res) => {
+router.delete("/:movie_id", fetchuser, async (req, res) => {
   const { movie_id } = req.params;
   try {
     const entry = await CompletedWatchList.findOneAndDelete({ user_id: req.user.id, movie_id });

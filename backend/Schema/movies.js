@@ -17,8 +17,12 @@ const {Schema} = mongoose;
         unique:true,
       },
       vote_average:{
-        type:String,
+        type:Number,
         required:true,
+      },
+      vote_count:{
+        type:Number,
+        default: 1,
       },
       rutime:{
         type:Number,
