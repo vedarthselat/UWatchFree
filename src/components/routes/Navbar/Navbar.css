@@ -1,0 +1,225 @@
+/* General setup */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: sans-serif;
+    overflow-x: hidden;
+}
+
+.navbar-p {
+    color: white;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    font-weight: 900;
+    font-size:1.5em;
+
+}
+
+/* Navbar container */
+.nav-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 999;
+    height: 4.5rem;
+    background-color: black;
+    backdrop-filter: blur(30px);
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Navbar inner layout */
+.nav-content {
+    max-width: 1300px;
+    height: 100%;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Logo */
+.logo {
+    width: 3rem;
+    height: auto;
+    display: flex;
+    align-items: center;
+    margin-bottom:0.2em;
+    background-color:black;
+    color:black;
+}
+
+/* Nav links list */
+.nav-content ul {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    list-style: none;
+}
+
+.nav-content li {
+    display: flex;
+    align-items: center;
+}
+
+/* Menu items */
+.menu-item {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: white;
+    position: relative;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.menu-item::before {
+    content: "";
+    position: absolute;
+    bottom: -6px;
+    left: 0;
+    height: 2px;
+    width: 0%;
+    background: rgb(1, 139, 139);
+    transition: 0.3s ease;
+}
+
+.menu-item:hover::before {
+    width: 100%;
+}
+
+/* Get in Touch Button */
+.contact-btn {
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0.6rem 1.5rem;
+    border: none;
+    border-radius: 0.3rem;
+    background: linear-gradient(90deg, #a993fe 0%, #7e61e7 100%);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.contact-btn:hover {
+    color: #a993fe;
+    background: #000;
+    outline: 1.5px solid #a993fe;
+}
+
+/* Mobile hamburger menu */
+.menu-btn-fixed {
+    position: fixed;
+    top: 1.2rem;
+    right: 1.5rem;
+    z-index: 1001;
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.5rem;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 0.4rem;
+    color: #fff;
+    background: rgb(1, 139, 139);
+    cursor: pointer;
+    transition: all 0.4s ease;
+    line-height: 1;
+}
+
+.menu-btn-fixed:hover {
+    color: #a993fe;
+    background: #000;
+    border: 1px solid rgb(1, 139, 139);
+}
+
+.material-symbols-outlined {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 🔍 Search bar */
+.search-container {
+    display: flex;
+    align-items: center;
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.search-input {
+    padding: 0.4rem 0.8rem;
+    border: 2px solid #a993fe;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    color: white;
+    outline: none;
+    width: 150px;
+    transition: 0.3s ease;
+}
+
+.search-input:focus {
+    border-color: #7e61e7;
+}
+
+.search-button {
+    background: #a993fe;
+    color: white;
+    border: none;
+    border-radius: 999px;
+    padding: 0.4rem 0.8rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.search-button:hover {
+    background: #7e61e7;
+}
+
+/* Responsive adjustments */
+@media (max-width: 920px) {
+    .logo {
+        width: 9rem;
+    }
+
+    .menu-item {
+        font-size: 1rem;
+    }
+
+    .contact-btn {
+        font-size: 0.8rem;
+        padding: 0.6rem 1rem;
+    }
+
+    .search-container {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+
+    .nav-content ul,
+    .contact-btn {
+        display: none;
+    }
+
+    .menu-btn-fixed {
+        display: flex;
+    }
+
+    .nav-content {
+        justify-content: space-between;
+    }
+}

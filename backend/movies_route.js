@@ -120,20 +120,40 @@ router.get("/:title", async (req, res) => {
   }
 });
 
-
-// DELETE all movies
-router.delete("/all/all", async (req, res) => {
+router.get("/id/:id", async (req, res) => {
   try {
-    const result = await Movie.deleteMany({});
-    res.status(200).json({
-      message: "All movies deleted successfully",
-      deletedCount: result.deletedCount
-    });
+    const id = req.params.id;
+
+    // First, try exact case-insensitive match
+    const exactMatch = await Movie.findById({ _id: id });
+
+    if (exactMatch) {
+      return res.status(200).json(exactMatch);
+    }
+    else{
+      return res.status(404).json({ error: "No matching movies found." });
+    }
+
+    // If no exact match, do a partial match (case-insensitive)
   } catch (error) {
-    console.error("Error deleting movies:", error);
+    console.error("Error fetching movie:", error);
     res.status(500).json({ error: "Internal server error." });
   }
 });
+
+// DELETE all movies
+// router.delete("/all/all", async (req, res) => {
+//   try {
+//     const result = await Movie.deleteMany({});
+//     res.status(200).json({
+//       message: "All movies deleted successfully",
+//       deletedCount: result.deletedCount
+//     });
+//   } catch (error) {
+//     console.error("Error deleting movies:", error);
+//     res.status(500).json({ error: "Internal server error." });
+//   }
+// });
 
 
 

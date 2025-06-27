@@ -1,0 +1,64 @@
+/* MovieDetails.css */
+
+.movie-container {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+.movie-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .movie-content {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+.movie-poster {
+  width: 250px;
+  height: auto;
+  border-radius: 6px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+}
+
+.movie-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.movie-title1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #111;
+  margin: 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #ccc;
+}
+
+.movie-tagline {
+  font-style: italic;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.movie-overview {
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: #333;
+}
+
+.movie-link {
+  color: #007bff;
+  text-decoration: none;
+  margin-top: 0.5rem;
+}
+
+.movie-link:hover {
+  text-decoration: underline;
+}

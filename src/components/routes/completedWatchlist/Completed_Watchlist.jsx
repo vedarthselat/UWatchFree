@@ -1,8 +1,8 @@
-import NavBar from "../NavBar";
+import NavBar from "../Navbar/NavBar";
 import { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../Authenticator";
-import Movie from "./Movie";
+import { AuthContext } from "../Authenticator/Authenticator";
+import Movie from "../Movies/Movie";
 
 export default function Completed_Watchlist() {
   const [movies, setMovies] = useState([]); // Stores all fetched movies

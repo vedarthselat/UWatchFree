@@ -13,7 +13,6 @@ router.post(
     fetchuser,
     [
       body("priority", "Priority must be a number between 1 and 10").isInt({ min: 1, max: 10 }).notEmpty(),
-      body("notes", "Notes are required").notEmpty(),
     ],
     async (req, res) => {
       const errors = validationResult(req);
@@ -23,7 +22,7 @@ router.post(
   
       const movie_id = req.params.movie_id;
       const user_id = req.user.id;
-      const { priority, notes } = req.body;
+      const { priority} = req.body;
   
       try {
         const movieExists = await Movie.findById(movie_id);
@@ -49,8 +48,7 @@ router.post(
         const entry = new ToWatchList({
           movie_id,
           user_id,
-          priority,
-          notes,
+          priority
         });
   
         await entry.save();

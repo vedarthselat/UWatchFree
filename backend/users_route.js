@@ -18,6 +18,16 @@ router.post("/register", [
       return res.status(400).json({ errors: errors.array() });
     }
   
+    const existingUser = await User.findOne({ email: req.body.email });
+    if (existingUser) {
+      return res.status(400).json({ error: "User with this email already exists" });
+    }
+  
+    const existingUsername = await User.findOne({ username: req.body.username });
+    if (existingUsername) {
+      return res.status(400).json({ error: "User with this username already exists" });
+    }
+  
     try {
       const salt= await bcrypt.genSalt(10);
       const hashPass=await bcrypt.hash(req.body.password, salt);
