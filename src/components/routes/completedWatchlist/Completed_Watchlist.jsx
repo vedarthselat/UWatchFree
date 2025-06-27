@@ -3,23 +3,21 @@ import { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../Authenticator/Authenticator";
 import Movie from "../Movies/Movie";
+import "./Completed_Watchlist.css";
 
 export default function Completed_Watchlist() {
-  const [movies, setMovies] = useState([]); // Stores all fetched movies
-  const useAuth = useContext(AuthContext);
+  const [movies, setMovies] = useState([]);
+  const { token } = useContext(AuthContext);
   const navigate = useNavigate();
-  const APIKey = useAuth.token;
-  const BASE_URL =
-    "https://loki.trentu.ca/~vedarthselat/3430/assn/assn2-arpanarora227/api/completedwatchlist/entries";
+  const BASE_URL = "http://localhost:4000/api/completedwatchlist/";
 
-  // Fetch the completed watchlist movies
   async function getMovies() {
     try {
       const response = await fetch(BASE_URL, {
         method: "GET",
         headers: {
-          "X-API-KEY": APIKey,
-          "Content-Type": "Application/json",
+          "auth-token": token,
+          "Content-Type": "application/json",
         },
       });
 
@@ -28,8 +26,31 @@ export default function Completed_Watchlist() {
       }
 
       const data = await response.json();
-      const watchlist = data["User's completedWatchList"];
-      setMovies(watchlist);
+      const watchlist = data["completedWatchList"];
+
+      // Deeply ensure movie_id.poster exists and is passed
+      const formattedMovies = watchlist.map((item) => {
+        const movieData = item.movie_id;
+
+        if (!movieData) {
+          console.warn("No movie data in item:", item);
+          return null;
+        }
+
+        return {
+          _id: movieData._id,
+          title: movieData.title,
+          tagline: movieData.tagline,
+          vote_average: movieData.vote_average,
+          poster: movieData.poster || null,
+          type: "completedwatchlist",
+          completedWatchlistId: item._id,
+          times_watched: item.times_watched,
+          rating: item.rating,
+        };
+      }).filter(Boolean); // Filter out nulls
+
+      setMovies(formattedMovies);
     } catch (error) {
       console.error("Error fetching completed watchlist movies:", error);
     }
@@ -48,13 +69,12 @@ export default function Completed_Watchlist() {
       <header>
         <NavBar />
       </header>
-      <main>
-        <h1 className="text-3xl font-bold text-center my-4">Completed Watchlist</h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 px-4">
+      <main className="completed-watchlist-main">
+        <h1 className="watchlist-title">Completed Watchlist</h1>
+        <div className="movie-grid">
           {movies.map((movie) => (
-            <div key={movie.id} onClick={() => handleClick(movie.id)}>
-              <Movie movie={{...movie, 
-                type:"completedwatchlist"}} />
+            <div key={movie.completedWatchlistId} onClick={() => handleClick(movie.completedWatchlistId)}>
+              <Movie movie={movie} />
             </div>
           ))}
         </div>

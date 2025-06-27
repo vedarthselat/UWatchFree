@@ -4,8 +4,7 @@ import { AuthContext } from "../Authenticator/Authenticator";
 import "./Movie.css";
 
 function Movie({ movie, onRemove }) {
-  const useAuth = useContext(AuthContext);
-  const token = useAuth.token;
+  const { token } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [click, setClick] = useState({
@@ -54,7 +53,7 @@ function Movie({ movie, onRemove }) {
     ev.stopPropagation();
     try {
       const response = await fetch(
-        `http://localhost:4000/api/towatchlist/${movie.movie_id}`, // ✅ This is the movie's actual _id
+        `http://localhost:4000/api/towatchlist/${movie.movie_id}`,
         {
           method: "DELETE",
           headers: {
@@ -62,12 +61,12 @@ function Movie({ movie, onRemove }) {
           },
         }
       );
-  
+
       const data = await response.json();
       console.log(data);
-  
+
       if (response.status === 200 && data.message === "Movie removed from your watchlist") {
-        onRemove(movie._id); // Remove from UI using the ToWatchList entry's _id
+        onRemove(movie._id);
       } else {
         alert(data.error || "Failed to remove movie!");
       }
@@ -75,8 +74,6 @@ function Movie({ movie, onRemove }) {
       console.error("Failed to remove from watchlist", error);
     }
   }
-  
-  
 
   function handleMarkAsWatched(ev) {
     ev.stopPropagation();
@@ -89,10 +86,33 @@ function Movie({ movie, onRemove }) {
     }
   }
 
+  // ✅ Browser-safe poster conversion (no Buffer)
+  let posterSrc = "";
+
+  if (typeof movie.poster === "string") {
+    posterSrc = movie.poster;
+  } else if (
+    movie.poster &&
+    movie.poster.data &&
+    Array.isArray(movie.poster.data.data)
+  ) {
+    try {
+      const byteArray = new Uint8Array(movie.poster.data.data);
+      const binaryString = String.fromCharCode(...byteArray);
+      const base64String = btoa(binaryString);
+      posterSrc = `data:${movie.poster.contentType};base64,${base64String}`;
+    } catch (err) {
+      console.error("Error processing poster buffer:", err);
+      posterSrc = "https://via.placeholder.com/300x450?text=No+Image";
+    }
+  } else {
+    posterSrc = "https://via.placeholder.com/300x450?text=No+Image";
+  }
+
   return (
     <div className="movie-card" onClick={handleCardClick}>
       <div className="movie-img-wrapper">
-        <img src={movie.poster} alt={movie.title} className="movie-img" />
+        <img src={posterSrc} alt={movie.title} className="movie-img" />
 
         {movie.type !== "completedwatchlist" && (
           <>
@@ -145,7 +165,13 @@ function Movie({ movie, onRemove }) {
 
       <h2 className="movie-title">{movie.title}</h2>
       <p className="movie-tagline">{movie.tagline}</p>
-      <p className="movie-rating">Rating: {movie.vote_average}/10</p>
+      <p className="movie-rating">Vote Average: {movie.vote_average}/10</p>
+
+      {movie.rating && (
+        <p className="movie-rating">
+          <strong>Your Rating:</strong> {movie.rating}/10
+        </p>
+      )}
 
       {movie.priority && (
         <p>
@@ -153,7 +179,7 @@ function Movie({ movie, onRemove }) {
         </p>
       )}
 
-      {movie.type === "watchList" && movie.type !== "completedwatchlist" && (
+      {movie.type === "watchList" && (
         <button className="movie-button bottom-button red" onClick={handleRemove}>
           Remove
         </button>

@@ -11,14 +11,14 @@ router.post(
   "/:movie_id",
   fetchuser, [
   body("rating", "Rating is required and must be a number between 1 and 10").notEmpty().isFloat({ min: 1, max: 10 }), 
-   body("notes", "Notes are required").notEmpty().custom((value) => typeof value === "string") ],
+],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
     const user_id = req.user.id;
     const movie_id = req.params.movie_id;
-    const { rating, notes } = req.body;
+    const { rating} = req.body;
 
     // try {
       const exists = await CompletedWatchList.findOne({ user_id, movie_id });
@@ -32,7 +32,6 @@ router.post(
         user_id,
         movie_id,
         rating,
-        notes,
       });
 
       await entry.save();

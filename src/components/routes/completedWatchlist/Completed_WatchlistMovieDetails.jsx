@@ -18,7 +18,7 @@ export default function CompletedMovieDetails() {
           {
             method: "GET",
             headers: {
-              "auth-token": APIKey,
+              "auth-token": token,
               "Content-Type": "application/json",
             },
           }
@@ -29,10 +29,10 @@ export default function CompletedMovieDetails() {
         }
 
         const data = await response.json();
-        const entries = data["User's completedWatchList"];
+        const entries = data["completedWatchList"];
 
         // Ensure type match between id (string) and movie.id (number)
-        const thisMovie = entries?.find((movie) => movie.id === Number(id));
+        const thisMovie = entries?.find((movie) => movie.movie_id === id);
 
         if (thisMovie) {
           // Explicitly set timesWatched, defaulting to 0 if not found
@@ -75,7 +75,7 @@ export default function CompletedMovieDetails() {
 
     // Call both functions when component mounts
     Promise.all([fetchMovieData(), getMovieDetails()]);
-  }, [id, APIKey]);
+  }, [id, token]);
 
   const handleIncrement = async () => {
     try {

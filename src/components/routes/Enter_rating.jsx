@@ -1,6 +1,8 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useContext } from "react";
 import { AuthContext } from "./Authenticator/Authenticator";
+import "./Enter_rating.css";
+import NavBar from "./Navbar/NavBar";
 
 export default function Enter_rating() {
   const navigate = useNavigate();
@@ -9,44 +11,112 @@ export default function Enter_rating() {
   const [formData, setFormData] = useState({ rating: "" });
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState(null);
-  const { APIKey } = useContext(AuthContext);
-  const [rating, setScore] = useState();
+  const { token } = useContext(AuthContext);
+  const [rating, setScore] = useState("N/A");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetch('https://loki.trentu.ca/~vedarthselat/3430/assn/assn2-arpanarora227/api/towatchlist/entries', {
-      method: "GET",
-      headers: {
-        "X-API-KEY": APIKey,
-        "Content-Type": "Application/json",
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        const entries = data["User's toWatchList"];
-        const thisMovie = entries.find((movie) => movie.id == id);
-        setScore(thisMovie?.rating || "N/A");
+  function arrayBufferToBase64(buffer) {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    bytes.forEach((b) => (binary += String.fromCharCode(b)));
+    return window.btoa(binary);
+  }
+
+  async function getMovieDetails() {
+    try {
+      console.log("Fetching movie details for ID:", id);
+      const response = await fetch(`http://localhost:4000/api/movies/id/${id}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
 
-    async function getMovieDetails() {
-      try {
-        const response = await fetch(
-          `https://loki.trentu.ca/~vedarthselat/3430/assn/assn2-arpanarora227/api/movies/${id}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        const data = await response.json();
-        setMovie(data[`Info of movie of id ${id}`]);
-      } catch (error) {
-        console.error("Error fetching movie details:", error);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+
+      const data = await response.json();
+      console.log("Movie API Response:", data);
+
+      // Handle poster image
+      let posterUrl = "fallback.jpg"; // Default fallback
+      if (data.poster?.data?.data && data.poster?.contentType) {
+        try {
+          const bufferData = data.poster.data.data;
+          const contentType = data.poster.contentType;
+          const base64 = arrayBufferToBase64(bufferData);
+          posterUrl = `data:${contentType};base64,${base64}`;
+        } catch (posterError) {
+          console.error("Error processing poster:", posterError);
+        }
+      }
+
+      // Set movie data with processed poster
+      setMovie({ 
+        ...data, 
+        poster: posterUrl,
+        // Ensure all fields are properly set with fallbacks
+        title: data.title || "Untitled Movie",
+        tagline: data.tagline || "",
+        genre: data.genre || "Unknown",
+        rutime: data.rutime || data.runtime || "Unknown", // Handle both possible field names
+        vote_average: data.vote_average || "N/A",
+        vote_count: data.vote_count || "N/A",
+        homepage: data.homepage || ""
+      });
+
+    } catch (error) {
+      console.error("Error fetching movie details:", error);
+      setError("Failed to load movie details");
+    }
+  }
+
+  async function getUserRating() {
+    try {
+      const response = await fetch('http://localhost:4000/api/towatchlist', {
+        method: "GET",
+        headers: {
+          "auth-token": token,
+          "Content-Type": "application/json", // Fixed typo: Application -> application
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Watchlist API Response:", data);
+
+      const entries = data;
+      const thisMovie = entries.find((movie) => movie.movie_id == id);
+      setScore(thisMovie?.rating || "N/A");
+    } catch (error) {
+      console.error("Error fetching user rating:", error);
+      // Don't set error state for this as it's not critical
+    }
+  }
+
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true);
+      setError(null);
+
+      // Fetch both movie details and user rating
+      await Promise.all([
+        getMovieDetails(),
+        getUserRating()
+      ]);
+
+      setLoading(false);
     }
 
-    getMovieDetails();
-  }, [id]);
+    if (id && token) {
+      fetchData();
+    }
+  }, [id, token]);
 
   const validate = () => {
     const newErrors = {};
@@ -61,42 +131,44 @@ export default function Enter_rating() {
 
   const handleSubmit = async (ev) => {
     ev.preventDefault();
-
     const validationErrors = validate();
-    
     if (Object.keys(validationErrors).length) {
       setErrors(validationErrors);
       return;
     }
-
+  
     try {
-        const formdata = new FormData();
-    formdata.append("movieID", id);
-    formdata.append("rating", formData.rating);
       const response = await fetch(
-        `https://loki.trentu.ca/~vedarthselat/3430/assn/assn2-arpanarora227/api/completedwatchlist/entries`,
+        `http://localhost:4000/api/completedwatchlist/${id}`,
         {
           method: "POST",
           headers: {
-            "X-API-KEY": APIKey,
+            "Content-Type": "application/json",
+            "auth-token": token,
           },
-          body: formdata,
+          body: JSON.stringify({ rating: formData.rating }),
         }
       );
-
+  
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+  
       const data = await response.json();
-      if (data.Success) {
-        navigate("/completed_watchlist");
+      if (data.message) {
+        setMessage("Rating submitted successfully!");
+        setTimeout(() => {
+          navigate("/completed_watchlist");
+        }, 1500);
+      } else {
+        setMessage("Failed to submit rating.");
       }
     } catch (error) {
       console.error("Error updating rating:", error);
       setMessage("Failed to update rating.");
     }
   };
+  
 
   const handleChange = (ev) => {
     const { name, value } = ev.target;
@@ -105,90 +177,78 @@ export default function Enter_rating() {
     setMessage(null);
   };
 
-  if (!movie) return <p>Loading...</p>;
-
-  const genres = JSON.parse(movie.genres || "[]")
-    .map((genre) => genre.name)
-    .join(", ");
-  const productionCompanies = JSON.parse(movie.production_companies || "[]")
-    .map((company) => company.name)
-    .join(", ");
+  if (loading) return <div className="loading">Loading movie details...</div>;
+  if (error) return <div className="error-message">Error: {error}</div>;
+  if (!movie) return <div className="error-message">No movie data found</div>;
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
+    <>
+    <NavBar />
+    <div className="rating-container">
+      <div className="rating-flex">
         <img
           src={movie.poster}
           alt={movie.title}
-          className="w-64 h-auto rounded shadow-lg"
+          className="rating-poster"
+          onError={(e) => {
+            e.target.src = "fallback.jpg"; // Fallback if poster fails to load
+          }}
         />
-        <div className="flex flex-col gap-4">
-          <h1 className="text-3xl font-bold">{movie.title}</h1>
-          <p className="text-sm italic text-gray-500">{movie.tagline}</p>
-          <p className="text-lg">{movie.overview}</p>
-          <p className="text-sm text-gray-700">
-            <strong>Genres:</strong> {genres}
-          </p>
-          <p className="text-sm text-gray-700">
-            <strong>Release Date:</strong> {movie.release_date}
-          </p>
-          <p className="text-sm text-gray-700">
-            <strong>Runtime:</strong> {movie.runtime} minutes
-          </p>
-          <p className="text-sm text-gray-700">
-            <strong>Average Rating:</strong> {movie.vote_average}/10 (
-            {movie.vote_count} votes)
-          </p>
-          <p className="text-sm text-gray-700">
-            <strong>Revenue:</strong> ${Number(movie.revenue).toLocaleString()}
-          </p>
-          <p className="text-sm text-gray-700">
-            <strong>Budget:</strong> ${Number(movie.budget).toLocaleString()}
-          </p>
-          <p className="text-sm text-gray-700">
-            <strong>Production Companies:</strong> {productionCompanies}
-          </p>
-          <p className="text-sm text-gray-700">
-            <strong>Score:</strong> {rating}
-          </p>
-          <a
-            href={movie.homepage}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-500 hover:underline"
-          >
-            Official Website
-          </a>
+        <div className="rating-details">
+          <h1 className="movie-title">{movie.title}</h1>
+          
+          {movie.tagline && (
+            <p className="tagline">"{movie.tagline}"</p>
+          )}
+          
+          {movie.genre && (
+            <p><strong>Genres:</strong> {movie.genre}</p>
+          )}
+          
+          {movie.rutime && movie.rutime !== "Unknown" && (
+            <p><strong>Runtime:</strong> {movie.rutime} minutes</p>
+          )}
+          
+          <p><strong>Average Rating:</strong> {movie.vote_average}/10</p>
+          <p><strong>Total Votes:</strong> {movie.vote_count}</p>
+          <p><strong>Your Score:</strong> {rating}</p>
 
-          <form onSubmit={handleSubmit} className="mt-4">
-            <div>
-              <input
-                type="number"
-                name="rating"
-                id="rating"
-                placeholder="Enter rating here"
-                value={formData.rating || ""}
-                onChange={handleChange}
-                className="border-4 border-solid border-[#ff8800] rounded-full p-2 w-64 text-black"
-              />
-              <br />
-              {errors.notSet && (
-                <span style={{ color: "red" }}>{errors.notSet}</span>
-              )}
-              {errors.invalid && (
-                <span style={{ color: "red" }}>{errors.invalid}</span>
-              )}
-              {message && <span style={{ color: "green" }}>{message}</span>}
-            </div>
-            <button
-              type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded mt-2 hover:bg-blue-600 transition"
+          {movie.homepage && (
+            <a 
+              className="visit-link" 
+              href={movie.homepage} 
+              target="_blank" 
+              rel="noopener noreferrer"
             >
+              Visit Official Website
+            </a>
+          )}
+
+          <form onSubmit={handleSubmit} className="rating-form">
+            <input
+              type="number"
+              name="rating"
+              placeholder="Enter rating here (1-10)"
+              value={formData.rating || ""}
+              onChange={handleChange}
+              className="rating-input"
+              min="1"
+              max="10"
+            />
+            <div className="form-messages">
+              {errors.notSet && <span className="error">{errors.notSet}</span>}
+              {errors.invalid && <span className="error">{errors.invalid}</span>}
+              {message && <span className="success">{message}</span>}
+            </div>
+            <button type="submit" className="submit-btn">
               Enter Rating
             </button>
           </form>
         </div>
       </div>
+
+
     </div>
+    </>
   );
 }
