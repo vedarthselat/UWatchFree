@@ -1,56 +1,48 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../Authenticator/Authenticator";
+import "./WatchMovieDetails.css";
+
+function bufferToBase64(buffer) {
+  let binary = "";
+  const bytes = new Uint8Array(buffer);
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return window.btoa(binary);
+}
 
 export default function WatchMovieDetails() {
   const { id } = useParams();
-  const [movie, setMovie] = useState(null);
+  const [entry, setEntry] = useState(null);
   const [formData, setFormData] = useState({ priority: "" });
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState(null);
-  const { APIKey } = useContext(AuthContext);
-  const [priority, setPriority] = useState();
+  const useAuth = useContext(AuthContext);
+  const token = useAuth.token;
 
   useEffect(() => {
-    // (From Matt): potential work around for not having an endpoint for a single
-    // towatchlist entry: get _all_ entries and use .find to get the one we care about:
-    
-    fetch('https://loki.trentu.ca/~vedarthselat/3430/assn/assn2-arpanarora227/api/towatchlist/entries', {
-        method: "GET",
-        headers: {
-            "X-API-KEY": APIKey,
-            "Content-Type": "Application/json",
-        },
-    })
-        .then(response => response.json())
-        .then(data => {
-            const entries = data["User's toWatchList"];
-            const thisMovie = entries.find(movie => movie.id == id);
-            console.log('this movie is', thisMovie);
-            setPriority(thisMovie.priority);
-        });
-    
-
-    async function getMovieDetails() {
+    async function fetchEntry() {
       try {
-        const response = await fetch(
-          `https://loki.trentu.ca/~vedarthselat/3430/assn/assn2-arpanarora227/api/movies/${id}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const response = await fetch(`http://localhost:4000/api/towatchlist`, {
+          method: "GET",
+          headers: {
+            "auth-token": token,
+            "Content-Type": "application/json",
+          },
+        });
         const data = await response.json();
-        setMovie(data[`Info of movie of id ${id}`]);
-      } catch (error) {
-        console.error("Error fetching movie details:", error);
+        const thisEntry = data.find((item) => item._id === id);
+        if (thisEntry) {
+          setEntry(thisEntry);
+        }
+      } catch (err) {
+        console.error("Error fetching to-watchlist:", err);
       }
     }
 
-    getMovieDetails();
-  }, [id]);
+    fetchEntry();
+  }, [id, token]);
 
   const validate = () => {
     const newErrors = {};
@@ -58,7 +50,7 @@ export default function WatchMovieDetails() {
     if (!formData.priority) {
       newErrors.notSet = "Please enter a priority value.";
     } else if (priorityValue < 1 || priorityValue > 10) {
-      newErrors.invalid = "Priority value must be between 1 and 10.";
+      newErrors.invalid = "Priority must be between 1 and 10.";
     }
     return newErrors;
   };
@@ -67,34 +59,32 @@ export default function WatchMovieDetails() {
     ev.preventDefault();
 
     const validationErrors = validate();
-    // const formdata=new FormData(ev.target)
-    const formdata = new URLSearchParams(formData);
     if (Object.keys(validationErrors).length) {
       setErrors(validationErrors);
       return;
     }
 
     try {
+      const movieId = entry.movie_id._id || entry.movie_id; // ✅ Critical fix here
+
       const response = await fetch(
-        `https://loki.trentu.ca/~vedarthselat/3430/assn/assn2-arpanarora227/api/towatchlist/entries/${id}/priority`,
+        `http://localhost:4000/api/towatchlist/${movieId}/priority`,
         {
           method: "PATCH",
           headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "X-API-KEY": APIKey,
+            "Content-Type": "application/json",
+            "auth-token": token,
           },
-          body: formdata,
+          body: JSON.stringify({ priority: formData.priority }),
         }
       );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
 
       const data = await response.json();
-      setMessage(data.Success);
-      setPriority(formData.priority);
-      setFormData({priority:""});
+      setMessage(data.message);
+      setEntry((prev) => ({ ...prev, priority: formData.priority }));
+      setFormData({ priority: "" });
     } catch (error) {
       console.error("Error updating priority:", error);
       setMessage("Failed to update priority.");
@@ -108,91 +98,58 @@ export default function WatchMovieDetails() {
     setMessage(null);
   };
 
-  if (!movie) return <div>Loading...</div>;
+  if (!entry) return <div className="loading">Loading...</div>;
+  if (!entry.movie_id) return <div className="loading">No movie data found...</div>;
 
-  const genres = JSON.parse(movie.genres)
-    .map((genre) => genre.name)
-    .join(", ");
-  const productionCompanies = JSON.parse(movie.production_companies)
-    .map((company) => company.name)
-    .join(", ");
+  const movie = entry.movie_id;
+
+  let posterUrl = "fallback.jpg";
+  if (movie.poster && movie.poster.data && movie.poster.data.data && movie.poster.contentType) {
+    try {
+      posterUrl = `data:${movie.poster.contentType};base64,${bufferToBase64(movie.poster.data.data)}`;
+    } catch (e) {
+      console.error("Poster image error:", e);
+    }
+  }
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
-        {/* Movie Poster */}
-        <img
-          src={movie.poster}
-          alt={movie.title}
-          className="w-64 h-auto rounded shadow-lg"
-        />
+    <div className="watch-details-container1">
+      <div className="movie-details1">
+        <img src={posterUrl} alt="Movie Poster" className="movie-poster1" />
 
-        {/* Movie Details */}
-        <div className="flex flex-col gap-4">
-          <h1 className="text-3xl font-bold">{movie.title}</h1>
-          <p className="text-sm italic text-gray-500">{movie.tagline}</p>
-          <p className="text-lg">{movie.overview}</p>
-          <p className="text-sm text-gray-700">
-            <strong>Genres:</strong> {genres}
-          </p>
-          <p className="text-sm text-gray-700">
-            <strong>Release Date:</strong> {movie.release_date}
-          </p>
-          <p className="text-sm text-gray-700">
-            <strong>Runtime:</strong> {movie.runtime} minutes
-          </p>
-          <p className="text-sm text-gray-700">
-            <strong>Average Rating:</strong> {movie.vote_average}/10 (
-            {movie.vote_count} votes)
-          </p>
-          <p className="text-sm text-gray-700">
-            <strong>Revenue:</strong> ${Number(movie.revenue).toLocaleString()}
-          </p>
-          <p className="text-sm text-gray-700">
-            <strong>Budget:</strong> ${Number(movie.budget).toLocaleString()}
-          </p>
-          <p className="text-sm text-gray-700">
-            <strong>Production Companies:</strong> {productionCompanies}
-          </p>
-          <p className="text-sm text-gray-700">
-            <strong>Priority:</strong> {priority} 
-          </p>
-          <a
-            href={movie.homepage}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-500 hover:underline"
-          >
-            Official Website
-          </a>
+        <div className="movie-info1">
+          <h1 className="movie-title1">{movie.title || "Untitled"}</h1>
 
-          {/* Priority Form */}
-          <form onSubmit={handleSubmit} className="mt-4">
-            <div>
-              <input
-                type="number"
-                name="priority"
-                id="priority"
-                placeholder="Enter priority here"
-                value={formData.priority || ""}
-                onChange={handleChange}
-                className="border-4 border-solid border-[#ff8800] rounded-full p-2 w-64 text-black"
-              />
-              <br />
-              {errors.notSet && (
-                <span style={{ color: "red" }}>{errors.notSet}</span>
-              )}
-              {errors.invalid && (
-                <span style={{ color: "red" }}>{errors.invalid}</span>
-              )}
-              {message && <span style={{ color: "green" }}>{message}</span>}
-            </div>
-            <button
-              type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded mt-2 hover:bg-blue-600 transition"
-            >
-              Update Priority
-            </button>
+          {movie.tagline && <p className="movie-tagline1">"{movie.tagline}"</p>}
+
+          <p><strong>Genre:</strong> {movie.genre || "N/A"}</p>
+          <p><strong>Runtime:</strong> {movie.rutime || "N/A"} minutes</p>
+          <p><strong>Average Rating:</strong> {movie.vote_average ?? "N/A"} / 10</p>
+          <p><strong>Vote Count:</strong> {movie.vote_count ?? "N/A"}</p>
+          <p><strong>Priority:</strong> {entry.priority}</p>
+
+          {movie.homepage && (
+            <a href={movie.homepage} target="_blank" rel="noopener noreferrer" className="movie-link">
+              Visit Official Website
+            </a>
+          )}
+
+          <form onSubmit={handleSubmit} className="priority-form">
+            <input
+              type="number"
+              name="priority"
+              id="priority"
+              placeholder="Enter priority (1-10)"
+              value={formData.priority}
+              onChange={handleChange}
+              className="priority-input"
+            />
+            <br />
+            {errors.notSet && <span className="error">{errors.notSet}</span>}
+            {errors.invalid && <span className="error">{errors.invalid}</span>}
+            {message && <span className="success">{message}</span>}
+            <br />
+            <button type="submit" className="submit-btn">Update Priority</button>
           </form>
         </div>
       </div>

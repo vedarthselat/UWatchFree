@@ -6,7 +6,7 @@ export default function CompletedMovieDetails() {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
   const [message, setMessage] = useState(null);
-  const { APIKey } = useContext(AuthContext);
+  const { token } = useContext(AuthContext);
   const [timesWatched, setTimesWatched] = useState(0);
 
   useEffect(() => {
@@ -14,11 +14,11 @@ export default function CompletedMovieDetails() {
 
       try {
         const response = await fetch(
-          `https://loki.trentu.ca/~vedarthselat/3430/assn/assn2-arpanarora227/api/completedwatchlist/entries`,
+          `http://localhost:4000/api/completedwatchlist/`,
           {
             method: "GET",
             headers: {
-              "X-API-KEY": APIKey,
+              "auth-token": APIKey,
               "Content-Type": "application/json",
             },
           }

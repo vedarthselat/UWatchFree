@@ -1,0 +1,97 @@
+.watch-details-container1 {
+    max-width: 1024px;
+    margin: auto;
+    padding: 1rem;
+  }
+  
+  .movie-details1 {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  @media (min-width: 768px) {
+    .movie-details1 {
+      flex-direction: row;
+      align-items: flex-start;
+    }
+  }
+  
+  .movie-poster1 {
+    width: 256px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  .movie-info1 {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    font-size: 1rem;
+    color: #111;
+  }
+  
+  .movie-title1 {
+    font-size: 2rem;
+    font-weight: bold;
+  }
+  
+  .movie-tagline1 {
+    font-size: 1rem;
+    font-style: italic;
+    color: #6b7280;
+  }
+  
+  .movie-link {
+    color: #3b82f6;
+    text-decoration: underline;
+    margin-top: 0.5rem;
+  }
+  
+  .movie-link:hover {
+    color: #2563eb;
+  }
+  
+  .priority-form {
+    margin-top: 1rem;
+  }
+  
+  .priority-input {
+    border: 2px solid #ff8800;
+    border-radius: 9999px;
+    padding: 0.5rem 1rem;
+    width: 250px;
+    font-size: 1rem;
+  }
+  
+  .submit-btn {
+    background-color: #3b82f6;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    margin-top: 0.5rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  .submit-btn:hover {
+    background-color: #2563eb;
+  }
+  
+  .error {
+    color: red;
+    font-size: 0.9rem;
+  }
+  
+  .success {
+    color: green;
+    font-size: 0.9rem;
+  }
+  
+  .loading {
+    text-align: center;
+    margin-top: 3rem;
+    font-size: 1.25rem;
+  }
+  

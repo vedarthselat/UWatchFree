@@ -83,6 +83,45 @@ router.get("/", fetchuser, async (req, res) => {
   }
 });
 
+router.patch("/:movie_id/priority", fetchuser, async (req, res) => {
+  const user_id = req.user.id;
+  const { movie_id } = req.params;
+  const { priority } = req.body;
+  try {
+    const entry = await ToWatchList.findOneAndUpdate(
+      { user_id, movie_id },
+      { priority },
+      { new: true }
+    );
+    if (!entry) {
+      return res.status(404).json({ error: "Movie not found in your watchlist" });
+    }
+    res.status(200).json({ message: "Priority updated successfully", entry });
+  } catch (error) {
+    console.error("Error updating priority:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+})
+
+router.get("/:movie_id", fetchuser, async (req, res) => {
+  try {
+    const movie_id = req.params.movie_id;
+    const user_id = req.user.id;
+
+    const entry = await ToWatchList.findOne({ movie_id, user_id }).populate("movie_id");
+
+    if (!entry) {
+      return res.status(404).json({ error: "Movie not found in your watchlist" });
+    }
+
+    res.status(200).json(entry);
+  } catch (error) {
+    console.error("Error fetching movie from watchlist:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
 
 
 
@@ -110,18 +149,18 @@ router.delete("/:movie_id", fetchuser, async (req, res) => {
 });
 
 // DELETE /towatchlist/all - Deletes all entries from the ToWatchList collection
-router.delete("/all/all", async (req, res) => {
-  try {
-    const result = await ToWatchList.deleteMany({});
-    res.status(200).json({
-      message: "All to-watch list entries deleted successfully",
-      deletedCount: result.deletedCount,
-    });
-  } catch (error) {
-    console.error("Error deleting all to-watch list entries:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+// router.delete("/all/all", async (req, res) => {
+//   try {
+//     const result = await ToWatchList.deleteMany({});
+//     res.status(200).json({
+//       message: "All to-watch list entries deleted successfully",
+//       deletedCount: result.deletedCount,
+//     });
+//   } catch (error) {
+//     console.error("Error deleting all to-watch list entries:", error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// });
 
 
 

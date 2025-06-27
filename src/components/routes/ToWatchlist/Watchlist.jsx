@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../Authenticator/Authenticator";
 import NavBar from "../Navbar/NavBar";
 import Movie from "../Movies/Movie";
+import "./Watchlist.css";
 
 export default function Watchlist() {
   const [movies, setMovies] = useState([]);
@@ -14,9 +15,9 @@ export default function Watchlist() {
   const BASE_URL = "http://localhost:4000/api/towatchlist";
 
   function arrayBufferToBase64(buffer) {
-    let binary = '';
+    let binary = "";
     const bytes = new Uint8Array(buffer);
-    bytes.forEach((b) => binary += String.fromCharCode(b));
+    bytes.forEach((b) => (binary += String.fromCharCode(b)));
     return window.btoa(binary);
   }
 
@@ -26,7 +27,7 @@ export default function Watchlist() {
         method: "GET",
         headers: {
           "auth-token": useAuth.token,
-          "Content-Type": "Application/json",
+          "Content-Type": "application/json",
         },
       });
 
@@ -34,7 +35,6 @@ export default function Watchlist() {
 
       const watchlist = await response.json();
 
-      // Fix the poster image (convert buffer to base64)
       const formatted = watchlist.map((entry) => {
         const movie = entry.movie_id;
         const bufferData = movie.poster?.data?.data || [];
@@ -44,11 +44,12 @@ export default function Watchlist() {
 
         return {
           ...movie,
+          movie_id: movie._id, // ✅ Actual movie ID used for DELETE
           poster: posterUrl,
-          _id: entry._id, // For removing or navigating
+          _id: entry._id, // towatchlist entry ID
           priority: entry.priority,
           notes: entry.notes,
-          type: "watchList"
+          type: "watchList",
         };
       });
 
@@ -95,36 +96,42 @@ export default function Watchlist() {
       <header>
         <NavBar />
       </header>
-      <main>
-        <h1 className="text-3xl font-bold text-center my-4">Watchlist</h1>
-        <div className="text-center my-4">
-          <label htmlFor="priority-select" className="font-bold mr-2">
-            Filter by Priority:
-          </label>
-          <select
-            id="priority-select"
-            value={priority}
-            onChange={handlePriorityChange}
-            className="border p-2 rounded"
-          >
-            <option value="None">None</option>
-            {[...Array(10).keys()].map((i) => (
-              <option key={i + 1} value={i + 1}>
-                Priority {i + 1}
-              </option>
-            ))}
-          </select>
+      <main className="watchlist-page">
+        <div className="center-wrapper">
+          <h1 className="watchlist-header">Watchlist</h1>
+
+          <div className="filter-container">
+            <label htmlFor="priority-select" className="filter-label">
+              Filter by Priority:
+            </label>
+            <select
+              id="priority-select"
+              value={priority}
+              onChange={handlePriorityChange}
+              className="filter-select"
+            >
+              <option value="None">None</option>
+              {[...Array(10).keys()].map((i) => (
+                <option key={i + 1} value={i + 1}>
+                  Priority {i + 1}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 px-4">
-          {filteredMovies.map((movie) => (
-            <div key={movie._id} onClick={() => handleClick(movie._id)}>
-              <Movie
-                movie={movie}
-                onRemove={() => handleRemoveFromState(movie._id)}
-              />
+        <div className="content-wrapper">
+          {filteredMovies.length === 0 ? (
+            <p className="empty-message">No movies found for the selected priority.</p>
+          ) : (
+            <div className="movies-grid">
+              {filteredMovies.map((movie) => (
+                <div key={movie._id} onClick={() => handleClick(movie._id)}>
+                  <Movie movie={movie} onRemove={() => handleRemoveFromState(movie._id)} />
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
       </main>
     </>

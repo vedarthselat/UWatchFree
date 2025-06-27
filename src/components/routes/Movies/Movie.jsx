@@ -15,7 +15,7 @@ function Movie({ movie, onRemove }) {
   });
 
   async function handleClick(ev) {
-    ev.stopPropagation(); // Prevent propagation to parent div
+    ev.stopPropagation();
     if (!token) {
       navigate("/login");
       return;
@@ -39,18 +39,10 @@ function Movie({ movie, onRemove }) {
 
       if (response.status === 201 && data.message === "Movie added to watchlist") {
         setClick({ clicked: true, alreadyExists: false, alreadyWatched: false });
-        setTimeout(() => {
-          setClick({ clicked: false, alreadyExists: false, alreadyWatched: false });
-        }, 2000);
-      } else if (
-        response.status === 200 &&
-        data.message === "Movie already exists in your to-watch list."
-      ) {
+        setTimeout(() => setClick({ clicked: false, alreadyExists: false, alreadyWatched: false }), 2000);
+      } else if (response.status === 200 && data.message === "Movie already exists in your to-watch list.") {
         setClick({ clicked: true, alreadyExists: true, alreadyWatched: false });
-      } else if (
-        response.status === 200 &&
-        data.message === "Movie already exists in completed watchlist — skipping towatchlist."
-      ) {
+      } else if (response.status === 200 && data.message === "Movie already exists in completed watchlist — skipping towatchlist.") {
         setClick({ clicked: true, alreadyExists: false, alreadyWatched: true });
       }
     } catch (error) {
@@ -62,39 +54,38 @@ function Movie({ movie, onRemove }) {
     ev.stopPropagation();
     try {
       const response = await fetch(
-        `https://loki.trentu.ca/~vedarthselat/3430/assn/assn2-arpanarora227/api/towatchlist/entries/${movie.id}`,
+        `http://localhost:4000/api/towatchlist/${movie.movie_id}`, // ✅ This is the movie's actual _id
         {
           method: "DELETE",
           headers: {
-            "X-API-KEY": token,
+            "auth-token": token,
           },
         }
       );
-
+  
       const data = await response.json();
       console.log(data);
-      if (data.Success) {
-        onRemove(movie.id);
+  
+      if (response.status === 200 && data.message === "Movie removed from your watchlist") {
+        onRemove(movie._id); // Remove from UI using the ToWatchList entry's _id
       } else {
-        alert("Failed to remove movie!");
+        alert(data.error || "Failed to remove movie!");
       }
     } catch (error) {
       console.error("Failed to remove from watchlist", error);
     }
   }
+  
+  
 
   function handleMarkAsWatched(ev) {
     ev.stopPropagation();
-    navigate(`/completedwatchlist/${movie.id}`);
+    navigate(`/completedwatchlist/${movie._id}`);
   }
 
   function handleCardClick() {
-    if (movie.type === "watchList") {
-      navigate(`/watchlist/${movie.id}`);
-    } else if (movie.type === "completedwatchlist") {
-      navigate(`/completed_watchlist/${movie.id}`);
-    } else {
-      navigate(`/movies/${movie.id}`);
+    if (movie.type === "completedwatchlist") {
+      navigate(`/completed_watchlist/${movie._id}`);
     }
   }
 
