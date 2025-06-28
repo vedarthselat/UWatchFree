@@ -52,6 +52,9 @@ function NavBar({ getSearchResults }) {
             <NavLink to="/completed_watchlist">
               <span className="menu-item">Completed Watchlist</span>
             </NavLink>
+            <NavLink to="/addMovie">
+              <span className="menu-item">Add A Movie</span>
+            </NavLink>
 
             <li className="search-container">
               <form onSubmit={handleSubmit} className="search-form">

@@ -33,6 +33,9 @@ const MobileNav = ({ isOpen, toggleMenu, getSearchResults }) => {
           <NavLink to="/completed_watchlist">
             <span onClick={handleNavClick} className="menu-mobile-item">Completed Watchlist</span>
           </NavLink>
+          <NavLink to="/addMovie">
+            <span onClick={handleNavClick} className="menu-mobile-item">Add A Movie</span>
+          </NavLink>
 
           {isAuthenticated ? (
             <button className="contact-btn-mobile" onClick={() => { logout(); toggleMenu(); }}>

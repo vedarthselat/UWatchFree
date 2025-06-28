@@ -12,6 +12,7 @@ import WatchMovieDetails from "./ToWatchlist/WatchMovieDetails";
 import Completed_WatchlistMovieDetails from "./completedWatchlist/Completed_WatchlistMovieDetails";
 import LoginForm from "./SignupLogin/LoginForm";
 import Enter_rating from "./Enter_rating";
+import AddMovie from "./Add_movie/AddMovie";
 
 function AuthenticateRoute({ element }) {
   const { isAuthenticated } = useContext(AuthContext);
@@ -55,6 +56,10 @@ const routes = [
   {
     path: "/completedwatchlist/:id",
     element:<AuthenticateRoute element={<Enter_rating/>}/>
+  },
+  {
+    path: "/addMovie",
+    element:<AuthenticateRoute element={<AddMovie/>}/>
   }
 ];
 

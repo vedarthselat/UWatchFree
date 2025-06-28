@@ -192,10 +192,11 @@ body {
 @media (max-width: 920px) {
     .logo {
         width: 9rem;
+        margin-right:2em;
     }
 
     .menu-item {
-        font-size: 1rem;
+        font-size: 0.8rem;
     }
 
     .contact-btn {
@@ -206,9 +207,10 @@ body {
     .search-container {
         display: none;
     }
+
 }
 
-@media (max-width: 768px) {
+@media (max-width: 800px) {
 
     .nav-content ul,
     .contact-btn {
