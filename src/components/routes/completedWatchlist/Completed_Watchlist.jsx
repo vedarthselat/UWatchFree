@@ -28,28 +28,28 @@ export default function Completed_Watchlist() {
       const data = await response.json();
       const watchlist = data["completedWatchList"];
 
-      // Deeply ensure movie_id.poster exists and is passed
-      const formattedMovies = watchlist.map((item) => {
-        const movieData = item.movie_id;
+      const formattedMovies = watchlist
+        .map((item) => {
+          const movieData = item.movie_id;
 
-        if (!movieData) {
-          console.warn("No movie data in item:", item);
-          return null;
-        }
+          if (!movieData) {
+            console.warn("No movie data found in item:", item);
+            return null;
+          }
 
-        return {
-          _id: movieData._id,
-          title: movieData.title,
-          tagline: movieData.tagline,
-          vote_average: movieData.vote_average,
-          poster: movieData.poster || null,
-          type: "completedwatchlist",
-          completedWatchlistId: item._id,
-          times_watched: item.times_watched,
-          rating: item.rating,
-        };
-      }).filter(Boolean); // Filter out nulls
-
+          return {
+            _id: movieData._id,
+            title: movieData.title,
+            tagline: movieData.tagline,
+            vote_average: movieData.vote_average,
+            poster: movieData.poster, // ✅ poster object
+            type: "completedwatchlist",
+            completedWatchlistId: item._id,
+            times_watched: item.times_watched,
+            rating: item.rating,
+          };
+        })
+        .filter(Boolean); // Removes nulls
       setMovies(formattedMovies);
     } catch (error) {
       console.error("Error fetching completed watchlist movies:", error);
@@ -70,10 +70,10 @@ export default function Completed_Watchlist() {
         <NavBar />
       </header>
       <main className="completed-watchlist-main">
-        <h1 className="watchlist-title">Completed Watchlist</h1>
-        <div className="movie-grid">
+        <h1 className="watchlist-title1">Completed Watchlist</h1>
+        <div className="movie-grid2">
           {movies.map((movie) => (
-            <div key={movie.completedWatchlistId} onClick={() => handleClick(movie.completedWatchlistId)}>
+            <div key={movie._id} onClick={() => handleClick(movie._id)}>
               <Movie movie={movie} />
             </div>
           ))}

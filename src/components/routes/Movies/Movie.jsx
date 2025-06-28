@@ -77,7 +77,7 @@ function Movie({ movie, onRemove }) {
 
   function handleMarkAsWatched(ev) {
     ev.stopPropagation();
-    navigate(`/completedwatchlist/${movie._id}`);
+    navigate(`/completedwatchlist/${movie.movie_id}`);
   }
 
   function handleCardClick() {
@@ -86,27 +86,27 @@ function Movie({ movie, onRemove }) {
     }
   }
 
-  // ✅ Browser-safe poster conversion (no Buffer)
-  let posterSrc = "";
+  // ✅ Safe Poster Handling for All Pages
+  let posterSrc = "https://via.placeholder.com/300x450?text=No+Image";
 
   if (typeof movie.poster === "string") {
     posterSrc = movie.poster;
   } else if (
-    movie.poster &&
-    movie.poster.data &&
-    Array.isArray(movie.poster.data.data)
+    movie.poster?.data?.data &&
+    Array.isArray(movie.poster.data.data) &&
+    movie.poster.contentType
   ) {
     try {
       const byteArray = new Uint8Array(movie.poster.data.data);
-      const binaryString = String.fromCharCode(...byteArray);
-      const base64String = btoa(binaryString);
+      let binary = "";
+      for (let i = 0; i < byteArray.length; i++) {
+        binary += String.fromCharCode(byteArray[i]);
+      }
+      const base64String = btoa(binary);
       posterSrc = `data:${movie.poster.contentType};base64,${base64String}`;
     } catch (err) {
-      console.error("Error processing poster buffer:", err);
-      posterSrc = "https://via.placeholder.com/300x450?text=No+Image";
+      console.error("Poster buffer error:", err);
     }
-  } else {
-    posterSrc = "https://via.placeholder.com/300x450?text=No+Image";
   }
 
   return (

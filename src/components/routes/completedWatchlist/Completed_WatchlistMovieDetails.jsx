@@ -1,6 +1,8 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../Authenticator/Authenticator";
+import "./Completed_WatchlistMovieDetails.css"; 
+import NavBar from "../Navbar/NavBar";
 
 export default function CompletedMovieDetails() {
   const { id } = useParams();
@@ -8,10 +10,11 @@ export default function CompletedMovieDetails() {
   const [message, setMessage] = useState(null);
   const { token } = useContext(AuthContext);
   const [timesWatched, setTimesWatched] = useState(0);
+  const [rating, setRating] = useState(0);
+  const [notes, setNotes] = useState("");
 
   useEffect(() => {
-    async function fetchMovieData() {
-
+    async function fetchCompletedWatchlistData() {
       try {
         const response = await fetch(
           `http://localhost:4000/api/completedwatchlist/`,
@@ -29,63 +32,58 @@ export default function CompletedMovieDetails() {
         }
 
         const data = await response.json();
+        console.log("Full API response:", data);
         const entries = data["completedWatchList"];
+        console.log("Entries:", entries);
+        console.log("Looking for ID:", id);
 
-        // Ensure type match between id (string) and movie.id (number)
-        const thisMovie = entries?.find((movie) => movie.movie_id === id);
+        const thisMovieEntry = entries?.find((entry) => {
+          console.log("Checking entry._id:", entry._id, "against id:", id);
+          return String(entry._id) === String(id);
+        });
 
-        if (thisMovie) {
-          // Explicitly set timesWatched, defaulting to 0 if not found
-          setTimesWatched(thisMovie.times_watched || 0);
-          console.log("Times watched:" + timesWatched);
+        if (thisMovieEntry) {
+          console.log("Found movie entry:", thisMovieEntry);
+          console.log("Movie data from entry:", thisMovieEntry.movie_id);
+          setMovie(thisMovieEntry.movie_id);
+          setTimesWatched(thisMovieEntry.times_watched || 0);
+          setRating(thisMovieEntry.rating || 0);
+          setNotes(thisMovieEntry.notes || "");
         } else {
-          console.warn("Movie not found in completed watchlist.");
-          setTimesWatched(0);
-        }
-      } catch (error) {
-        console.error("Error fetching completed watchlist movie:", error);
-        setTimesWatched(0);
-      }
+          console.log("Entry not found, trying fallback...");
+          const fallbackEntry = entries?.find((entry) => {
+            console.log("Checking entry.movie_id._id:", entry.movie_id._id, "against id:", id);
+            return String(entry.movie_id._id) === String(id);
+          });
 
-
-    }
-
-    async function getMovieDetails() {
-      try {
-        const response = await fetch(
-          `https://loki.trentu.ca/~vedarthselat/3430/assn/assn2-arpanarora227/api/movies/${id}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
+          if (fallbackEntry) {
+            console.log("Found fallback entry:", fallbackEntry);
+            console.log("Movie data from fallback:", fallbackEntry.movie_id);
+            setMovie(fallbackEntry.movie_id);
+            setTimesWatched(fallbackEntry.times_watched || 0);
+            setRating(fallbackEntry.rating || 0);
+            setNotes(fallbackEntry.notes || "");
+          } else {
+            console.log("No movie found at all!");
           }
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
         }
-
-        const data = await response.json();
-        setMovie(data[`Info of movie of id ${id}`]);
       } catch (error) {
-        console.error("Error fetching movie details:", error);
+        console.error("Error fetching completed watchlist data:", error);
       }
     }
 
-    // Call both functions when component mounts
-    Promise.all([fetchMovieData(), getMovieDetails()]);
+    fetchCompletedWatchlistData();
   }, [id, token]);
 
   const handleIncrement = async () => {
     try {
       const response = await fetch(
-        `https://loki.trentu.ca/~vedarthselat/3430/assn/assn2-arpanarora227/api/completedwatchlist/entries/${id}/times-watched`,
+        `http://localhost:4000/api/completedwatchlist/entries/${id}/times-watched`,
         {
           method: "PATCH",
           headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "X-API-KEY": APIKey,
+            "Content-Type": "application/json",
+            "auth-token": token,
           },
         }
       );
@@ -95,7 +93,7 @@ export default function CompletedMovieDetails() {
       }
 
       const data = await response.json();
-      setMessage(data.Success);
+      setMessage(data.Success || data.message);
       setTimesWatched((prev) => prev + 1);
     } catch (error) {
       console.error("Error incrementing times watched:", error);
@@ -103,62 +101,109 @@ export default function CompletedMovieDetails() {
     }
   };
 
-  if (!movie) return <div>Loading...</div>;
+  const getPosterSrc = () => {
+    if (!movie?.poster) return "https://via.placeholder.com/300x450?text=No+Image";
 
-  const genres = JSON.parse(movie.genres || "[]")
-    .map((genre) => genre.name)
-    .join(", ");
-  const productionCompanies = JSON.parse(movie.production_companies || "[]")
-    .map((company) => company.name)
-    .join(", ");
+    if (typeof movie.poster === "string") {
+      return movie.poster;
+    } else if (
+      movie.poster?.data?.data &&
+      Array.isArray(movie.poster.data.data) &&
+      movie.poster.contentType
+    ) {
+      try {
+        const byteArray = new Uint8Array(movie.poster.data.data);
+        let binary = "";
+        for (let i = 0; i < byteArray.length; i++) {
+          binary += String.fromCharCode(byteArray[i]);
+        }
+        const base64String = btoa(binary);
+        return `data:${movie.poster.contentType};base64,${base64String}`;
+      } catch (err) {
+        console.error("Poster buffer error:", err);
+        return "https://via.placeholder.com/300x450?text=No+Image";
+      }
+    }
+    return "https://via.placeholder.com/300x450?text=No+Image";
+  };
+
+  console.log("Current movie state:", movie);
+
+  if (!movie) {
+    return (
+      <div className="completed-watchlist-movie-details-wrapper">
+        <div className="completed-watchlist-loading-state">Loading movie details...</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
-        <img
-          src={movie.poster}
-          alt={movie.title}
-          className="w-64 h-auto rounded shadow-lg"
-        />
+    <>
+    <NavBar />
+    <div className="completed-watchlist-movie-details-wrapper">
+      <div className="completed-watchlist-movie-display-container">
+        <div className="completed-watchlist-poster-section">
+          <img
+            src={getPosterSrc()}
+            alt={movie.title || "Movie poster"}
+            className="completed-watchlist-movie-poster-image"
+          />
+        </div>
 
-        <div className="flex flex-col gap-4">
-          <h1 className="text-3xl font-bold">{movie.title}</h1>
-          <p className="text-sm italic text-gray-500">{movie.tagline}</p>
-          <p className="text-lg">{movie.overview}</p>
-          <p className="text-sm text-gray-700">
-            <strong>Genres:</strong> {genres}
-          </p>
-          <p className="text-sm text-gray-700">
-            <strong>Release Date:</strong> {movie.release_date}
-          </p>
-          <p className="text-sm text-gray-700">
-            <strong>Runtime:</strong> {movie.runtime} minutes
-          </p>
-          <p className="text-sm text-gray-700">
-            <strong>Average Rating:</strong> {movie.vote_average}/10 (
-            {movie.vote_count} votes)
-          </p>
-          <p className="text-sm text-gray-700">
-            <strong>Revenue:</strong> ${Number(movie.revenue).toLocaleString()}
-          </p>
-          <p className="text-sm text-gray-700">
-            <strong>Budget:</strong> ${Number(movie.budget).toLocaleString()}
-          </p>
-          <p className="text-sm text-gray-700">
-            <strong>Production Companies:</strong> {productionCompanies}
-          </p>
-          <p className="text-sm text-gray-700">
-            <strong>Times Watched:</strong> {timesWatched}
-          </p>
-          <button
-            onClick={handleIncrement}
-            className="bg-blue-500 text-white px-4 py-2 rounded mt-2 hover:bg-blue-600 transition"
-          >
-            Increment Times Watched
-          </button>
-          {message && <span style={{ color: "green" }}>{message}</span>}
+        <div className="completed-watchlist-movie-information-panel">
+          <h1 className="completed-watchlist-movie-main-title">{movie.title || "No title available"}</h1>
+          <p className="completed-watchlist-movie-tagline-text">{movie.tagline || "No tagline available"}</p>
+
+          <div className="completed-watchlist-movie-details-grid-layout">
+            <div className="completed-watchlist-detail-info-block">
+              <span className="completed-watchlist-detail-field-label">Genre:</span>
+              <span className="completed-watchlist-detail-field-value">{movie.genre || "No genre available"}</span>
+            </div>
+            <div className="completed-watchlist-detail-info-block">
+              <span className="completed-watchlist-detail-field-label">Runtime:</span>
+              <span className="completed-watchlist-detail-field-value">{movie.rutime || "No runtime available"} minutes</span>
+            </div>
+            <div className="completed-watchlist-detail-info-block">
+              <span className="completed-watchlist-detail-field-label">Average Rating:</span>
+              <span className="completed-watchlist-detail-field-value">{movie.vote_average || "No rating"}/10 ({movie.vote_count || 0} votes)</span>
+            </div>
+            <div className="completed-watchlist-detail-info-block">
+              <span className="completed-watchlist-detail-field-label">Your Rating:</span>
+              <span className="completed-watchlist-detail-field-value">{rating}/10</span>
+            </div>
+            <div className="completed-watchlist-detail-info-block">
+              <span className="completed-watchlist-detail-field-label">Times Watched:</span>
+              <span className="completed-watchlist-detail-field-value">{timesWatched}</span>
+            </div>
+            {notes && (
+              <div className="completed-watchlist-detail-info-block completed-watchlist-notes-block">
+                <span className="completed-watchlist-detail-field-label">Your Notes:</span>
+                <span className="completed-watchlist-detail-field-value">{notes}</span>
+              </div>
+            )}
+          </div>
+
+          <div className="completed-watchlist-actions-control-panel">
+            <button onClick={handleIncrement} className="completed-watchlist-increment-times-watched-btn">
+              Increment Times Watched
+            </button>
+
+            {message && <div className="completed-watchlist-success-message-display">{message}</div>}
+
+            {movie.homepage && (
+              <a
+                href={movie.homepage}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="completed-watchlist-movie-homepage-link"
+              >
+                Visit Movie Homepage
+              </a>
+            )}
+          </div>
         </div>
       </div>
     </div>
+    </>
   );
 }

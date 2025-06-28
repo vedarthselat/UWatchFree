@@ -1,0 +1,59 @@
+.completed-watchlist-main {
+    padding: 1rem;
+  }
+  
+  .watchlist-title1 {
+    font-size: 1.875rem; /* text-3xl */
+    font-weight: bold;
+    text-align: center;
+    margin: 1rem 0;
+  }
+  
+  .movie-grid2 {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1.5rem;
+    padding: 0 1rem;
+  }
+  
+  @media (min-width: 640px) {
+    .movie-grid2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  
+  @media (min-width: 768px) {
+    .movie-grid2 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .movie-grid2 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  
+  /* Enforce size limits for all children of movie-grid */
+  .movie-grid2 > div {
+    overflow: hidden;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background: #fff;
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .movie-grid2 > div:hover {
+    transform: scale(1.02);
+  }
+  
+  /* Ensure the movie-card image stays contained */
+  .movie-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    max-height: 450px;
+    border-radius: 0.5rem 0.5rem 0 0;
+  }
+  
