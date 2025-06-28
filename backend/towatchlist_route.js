@@ -122,6 +122,46 @@ router.get("/:movie_id", fetchuser, async (req, res) => {
 });
 
 
+// Route: GET /api/towatchlist/search/:title
+router.get("/search/:title", fetchuser, async (req, res) => {
+  try {
+    const title = req.params.title;
+    const userId = req.user.id;
+
+    // Step 1: Find all to-watch entries for the user and populate movie data
+    const allEntries = await ToWatchList.find({ user_id: userId }).populate("movie_id");
+
+    if (!allEntries.length) {
+      return res.status(404).json({ error: "Your watchlist is empty." });
+    }
+
+    // Step 2: Try exact case-insensitive match on movie titles
+    const exactMatch = allEntries.find(entry =>
+      new RegExp(`^${title}$`, "i").test(entry.movie_id.title)
+    );
+
+    if (exactMatch) {
+      return res.status(200).json([exactMatch]);
+    }
+
+    // Step 3: Try partial matches
+    const partialMatches = allEntries.filter(entry =>
+      new RegExp(title, "i").test(entry.movie_id.title)
+    );
+
+    if (!partialMatches.length) {
+      return res.status(404).json({ error: "No matching movies found in your watchlist." });
+    }
+
+    return res.status(200).json(partialMatches);
+  } catch (error) {
+    console.error("Error searching to-watch list:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+
+
 
 
 

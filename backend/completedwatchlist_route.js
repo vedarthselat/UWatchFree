@@ -179,4 +179,42 @@ router.delete("/:movie_id", fetchuser, async (req, res) => {
   }
 });
 
+
+router.get("/search/:title", fetchuser, async (req, res) => {
+  try {
+    const title = req.params.title;
+    const userId = req.user.id;
+
+    // Step 1: Fetch user's completed watchlist and populate movie info
+    const completedEntries = await CompletedWatchList.find({ user_id: userId }).populate("movie_id");
+
+    if (!completedEntries.length) {
+      return res.status(404).json({ error: "Your completed watchlist is empty." });
+    }
+
+    // Step 2: Try exact case-insensitive match
+    const exactMatch = completedEntries.find(entry =>
+      new RegExp(`^${title}$`, "i").test(entry.movie_id.title)
+    );
+
+    if (exactMatch) {
+      return res.status(200).json([exactMatch]);
+    }
+
+    // Step 3: Try partial match
+    const partialMatches = completedEntries.filter(entry =>
+      new RegExp(title, "i").test(entry.movie_id.title)
+    );
+
+    if (!partialMatches.length) {
+      return res.status(404).json({ error: "No matching movies found in your completed watchlist." });
+    }
+
+    return res.status(200).json(partialMatches);
+  } catch (error) {
+    console.error("Error searching completed watchlist:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
 module.exports = router;

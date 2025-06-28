@@ -9,6 +9,7 @@ export default function Watchlist() {
   const [movies, setMovies] = useState([]);
   const [filteredMovies, setFilteredMovies] = useState([]);
   const [priority, setPriority] = useState("None");
+  const [searchPerformed, setSearchPerformed] = useState(false);
 
   const useAuth = useContext(AuthContext);
   const navigate = useNavigate();
@@ -55,8 +56,61 @@ export default function Watchlist() {
 
       setMovies(formatted);
       setFilteredMovies(formatted);
+      setSearchPerformed(false);
     } catch (error) {
       console.error("Error fetching watchlist movies:", error);
+    }
+  }
+
+  async function getSearchResults(titleEntered) {
+    if (titleEntered.trim() === "") {
+      await getMovies();
+      return;
+    }
+
+    setSearchPerformed(true);
+    try {
+      const response = await fetch(`${BASE_URL}/search/${encodeURIComponent(titleEntered)}`, {
+        headers: {
+          "auth-token": useAuth.token,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        setFilteredMovies([]);
+        return;
+      }
+
+      const results = await response.json();
+
+      const formatted = results.map((entry) => {
+        const movie = entry.movie_id;
+        const bufferData = movie.poster?.data?.data || [];
+        const contentType = movie.poster?.contentType || "image/jpeg";
+        const base64 = arrayBufferToBase64(bufferData);
+        const posterUrl = `data:${contentType};base64,${base64}`;
+
+        return {
+          ...movie,
+          movie_id: movie._id,
+          poster: posterUrl,
+          _id: entry._id,
+          priority: entry.priority,
+          notes: entry.notes,
+          type: "watchList",
+        };
+      });
+
+      setMovies(formatted);
+      if (priority === "None") {
+        setFilteredMovies(formatted);
+      } else {
+        setFilteredMovies(formatted.filter((movie) => movie.priority === Number(priority)));
+      }
+    } catch (error) {
+      console.error("Error during watchlist search:", error);
+      setFilteredMovies([]);
     }
   }
 
@@ -94,7 +148,7 @@ export default function Watchlist() {
   return (
     <>
       <header>
-        <NavBar />
+        <NavBar getSearchResults={getSearchResults} />
       </header>
       <main className="watchlist-page">
         <div className="center-wrapper">
@@ -121,7 +175,11 @@ export default function Watchlist() {
         </div>
 
         <div className="content-wrapper">
-          {filteredMovies.length === 0 ? (
+          {searchPerformed && filteredMovies.length === 0 ? (
+            <p className="empty-message" style={{ color: "red" }}>
+              Sorry, no matching movie exists in your watchlist.
+            </p>
+          ) : filteredMovies.length === 0 ? (
             <p className="empty-message">No movies found for the selected priority.</p>
           ) : (
             <div className="movies-grid">

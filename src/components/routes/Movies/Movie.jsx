@@ -86,7 +86,6 @@ function Movie({ movie, onRemove }) {
     }
   }
 
-  // ✅ Safe Poster Handling for All Pages
   let posterSrc = "https://via.placeholder.com/300x450?text=No+Image";
 
   if (typeof movie.poster === "string") {
@@ -110,7 +109,7 @@ function Movie({ movie, onRemove }) {
   }
 
   return (
-    <div className="movie-card" onClick={handleCardClick}>
+    <div className="movie-card" >
       <div className="movie-img-wrapper">
         <img src={posterSrc} alt={movie.title} className="movie-img" />
 

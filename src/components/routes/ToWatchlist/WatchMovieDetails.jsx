@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../Authenticator/Authenticator";
 import "./WatchMovieDetails.css";
+import NavBar from "../Navbar/NavBar"
 
 function bufferToBase64(buffer) {
   let binary = "";
@@ -113,6 +114,8 @@ export default function WatchMovieDetails() {
   }
 
   return (
+    <>
+    <NavBar />
     <div className="watch-details-container1">
       <div className="movie-details1">
         <img src={posterUrl} alt="Movie Poster" className="movie-poster1" />
@@ -154,5 +157,6 @@ export default function WatchMovieDetails() {
         </div>
       </div>
     </div>
+    </>
   );
 }

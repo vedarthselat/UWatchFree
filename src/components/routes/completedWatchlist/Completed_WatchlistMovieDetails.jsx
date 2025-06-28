@@ -175,12 +175,6 @@ export default function CompletedMovieDetails() {
               <span className="completed-watchlist-detail-field-label">Times Watched:</span>
               <span className="completed-watchlist-detail-field-value">{timesWatched}</span>
             </div>
-            {notes && (
-              <div className="completed-watchlist-detail-info-block completed-watchlist-notes-block">
-                <span className="completed-watchlist-detail-field-label">Your Notes:</span>
-                <span className="completed-watchlist-detail-field-value">{notes}</span>
-              </div>
-            )}
           </div>
 
           <div className="completed-watchlist-actions-control-panel">

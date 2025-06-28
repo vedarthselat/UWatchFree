@@ -42,17 +42,68 @@ export default function Completed_Watchlist() {
             title: movieData.title,
             tagline: movieData.tagline,
             vote_average: movieData.vote_average,
-            poster: movieData.poster, // ✅ poster object
+            poster: movieData.poster,
             type: "completedwatchlist",
             completedWatchlistId: item._id,
             times_watched: item.times_watched,
             rating: item.rating,
           };
         })
-        .filter(Boolean); // Removes nulls
+        .filter(Boolean);
+
       setMovies(formattedMovies);
     } catch (error) {
       console.error("Error fetching completed watchlist movies:", error);
+    }
+  }
+
+  // 🔍 SEARCH HANDLER FUNCTION
+  async function getSearchResults(query) {
+    if (!query) {
+      getMovies(); // reset to full list if query is empty
+      return;
+    }
+
+    try {
+      const response = await fetch(`${BASE_URL}search/${query}`, {
+        method: "GET",
+        headers: {
+          "auth-token": token,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        setMovies([]); // if 404 or error, show nothing
+        return;
+      }
+
+      const data = await response.json();
+
+      const formattedMovies = data
+        .map((item) => {
+          const movieData = item.movie_id;
+
+          if (!movieData) return null;
+
+          return {
+            _id: movieData._id,
+            title: movieData.title,
+            tagline: movieData.tagline,
+            vote_average: movieData.vote_average,
+            poster: movieData.poster,
+            type: "completedwatchlist",
+            completedWatchlistId: item._id,
+            times_watched: item.times_watched,
+            rating: item.rating,
+          };
+        })
+        .filter(Boolean);
+
+      setMovies(formattedMovies);
+    } catch (error) {
+      console.error("Error searching completed watchlist movies:", error);
+      setMovies([]);
     }
   }
 
@@ -67,17 +118,22 @@ export default function Completed_Watchlist() {
   return (
     <>
       <header>
-        <NavBar />
+        <NavBar getSearchResults={getSearchResults} />
       </header>
       <main className="completed-watchlist-main">
         <h1 className="watchlist-title1">Completed Watchlist</h1>
-        <div className="movie-grid2">
-          {movies.map((movie) => (
-            <div key={movie._id} onClick={() => handleClick(movie._id)}>
-              <Movie movie={movie} />
-            </div>
-          ))}
-        </div>
+
+        {movies.length === 0 ? (
+          <p className="no-movies-msg">No movies found.</p>
+        ) : (
+          <div className="movie-grid2">
+            {movies.map((movie) => (
+              <div key={movie._id} onClick={() => handleClick(movie._id)}>
+                <Movie movie={movie} />
+              </div>
+            ))}
+          </div>
+        )}
       </main>
     </>
   );
