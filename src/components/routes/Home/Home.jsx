@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, NavLink } from "react-router-dom";
 import NavBar from "../Navbar/NavBar";
 import Movie from "../Movies/Movie";
 import "./Home.css";
@@ -9,7 +9,7 @@ const BASE_URL = "https://uwatchfree-4.onrender.com/api/movies/";
 function Home() {
   const [movies, setMovies] = useState([]);
   const [searchPerformed, setSearchPerformed] = useState(false);
-  const [loading, setLoading] = useState(true); // <-- New state
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   function bufferToBase64(buffer) {
@@ -18,7 +18,7 @@ function Home() {
   }
 
   async function getMovies() {
-    setLoading(true); // <-- Start loading
+    setLoading(true);
     try {
       const response = await fetch(BASE_URL);
       const data = await response.json();
@@ -44,7 +44,7 @@ function Home() {
     } catch (error) {
       console.error("Error fetching movies:", error);
     } finally {
-      setLoading(false); // <-- End loading
+      setLoading(false);
     }
   }
 
@@ -59,7 +59,7 @@ function Home() {
     }
 
     setSearchPerformed(true);
-    setLoading(true); // <-- Start loading
+    setLoading(true);
     try {
       const response = await fetch(`https://uwatchfree-4.onrender.com/api/movies/${encodeURIComponent(titleEntered)}`);
       const data = await response.json();
@@ -87,7 +87,7 @@ function Home() {
       console.error("Error fetching search results:", error);
       setMovies([]);
     } finally {
-      setLoading(false); // <-- End loading
+      setLoading(false);
     }
   }
 
@@ -124,6 +124,14 @@ function Home() {
             </div>
           )}
         </div>
+
+        {/* Only show the Add Movie banner when loading is done */}
+        {!loading && (
+          <div className="add-movie-banner">
+            <p className="banner-text">🎬 Couldn’t find the movie you’re looking for?</p>
+            <NavLink to="/addMovie" className="banner-link">➕ Add it now!</NavLink>
+          </div>
+        )}
       </main>
     </>
   );
