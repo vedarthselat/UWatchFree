@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./SignUpForm.css";
-import NavBar from "../Navbar/NavBar"
+import NavBar from "../Navbar/NavBar";
+import { NavLink } from "react-router-dom";
 
 function SignUpForm() {
   const [err, setErr] = useState({});
@@ -176,7 +177,7 @@ function SignUpForm() {
               )}
               
               <div style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.9rem', color: 'white' }}>
-                Already have an account? <a href="/login" style={{ color: '#ff8800', textDecoration: 'none' }}>Login here</a>
+                Already have an account? <NavLink to="/login" style={{ color: '#ff8800', textDecoration: 'none' }}>Login here</NavLink>
               </div>
               
               <button type="submit" className="signup-button">
