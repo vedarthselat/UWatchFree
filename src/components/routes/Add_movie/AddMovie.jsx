@@ -116,7 +116,7 @@ export default function AddMovie() {
     <>
       <NavBar />
       <div className="add-movie-page">
-        <h1 className="add-heading">Add A Movie</h1>
+        <h1 className="add-heading">Log A Movie</h1>
         <div className="add-movie-container">
           <form
             className="add-movie-form"
