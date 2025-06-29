@@ -1,112 +1,142 @@
-/* Overall layout */
+/* Force everything to center - aggressive approach */
 .watchlist-page {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 2rem 1rem;
-  }
-  
-  /* Centering wrapper for heading and filter */
-  .center-wrapper {
-    width: 100%;
-    max-width: 1200px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-  }
-  
-  /* Heading */
-  .watchlist-header {
-    font-size: 2.5rem;
-    font-weight: bold;
-    text-align: center;
-    margin: 5rem auto 2rem auto;
-    color: #2c3e50;
-    width: 100%;
-  }
-  
-  /* Filter */
-  .filter-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 0 auto 2rem auto;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-    width: 100%;
-  }
-  
-  .filter-label {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #34495e;
-    text-align: center;
-  }
-  
-  .filter-select {
-    font-size: 1rem;
-    padding: 0.6rem 1.2rem;
-    border: 1px solid #bdc3c7;
-    border-radius: 8px;
-    background-color: #ffffff;
-    color: #2c3e50;
-    transition: border 0.3s, box-shadow 0.3s;
-    cursor: pointer;
-  }
-  
-  .filter-select option {
-    color: #2c3e50;
-    background-color: #ffffff;
-  }
-  
-  .filter-select:focus {
-    border-color: #3498db;
-    outline: none;
-    box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
-  }
-  
-  /* Movie content */
-  .content-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 300px;
-    width: 100%;
-    padding: 2rem 1rem;
-  }
-  
+  width: 100vw;
+  min-height: 100vh;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  padding: 2rem;
+  margin: 0 !important;
+  box-sizing: border-box;
+}
+
+/* Center wrapper */
+.center-wrapper {
+  width: 100% !important;
+  max-width: 1200px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  margin: 0 auto 3rem auto !important;
+}
+
+/* Heading */
+.watchlist-header {
+  font-size: 2.5rem !important;
+  font-weight: bold !important;
+  color: #2c3e50 !important;
+  margin: 0 auto 2rem auto !important;
+  text-align: center !important;
+  width: 100% !important;
+}
+
+/* Filter container */
+.filter-container {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+  margin: 0 auto !important;
+  width: 100% !important;
+}
+
+.filter-label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #34495e;
+}
+
+.filter-select {
+  font-size: 1rem;
+  padding: 0.6rem 1.2rem;
+  border: 1px solid #bdc3c7;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #2c3e50;
+  transition: border 0.3s, box-shadow 0.3s;
+  cursor: pointer;
+}
+
+.filter-select:focus {
+  border-color: #3498db;
+  outline: none;
+  box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+}
+
+/* Content wrapper - force center */
+.content-wrapper {
+  width: 100% !important;
+  max-width: 1200px !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin: 0 auto !important;
+}
+
+/* Movies grid - force center with important */
+.movies-grid {
+  display: grid !important;
+  grid-template-columns: repeat(1, 1fr) !important;
+  gap: 2rem !important;
+  width: 100% !important;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+  justify-content: center !important;
+  justify-items: center !important;
+  place-items: center !important;
+  text-align: center !important;
+}
+
+/* Force center each grid item */
+.movies-grid > div {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin: 0 auto !important;
+}
+
+/* Responsive grid */
+@media (min-width: 780px) {
   .movies-grid {
-    display: grid;
-    grid-template-columns: repeat(1, 1fr);
-    gap: 1rem;
-    width: 100%;
-    max-width: 1200px;
+    grid-template-columns: repeat(2, 1fr) !important;
   }
-  
-  @media (min-width: 640px) {
-    .movies-grid {
-      grid-template-columns: repeat(1, 1fr);
-    }
+}
+
+@media (min-width: 1024px) {
+  .movies-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
   }
-  
-  @media (min-width: 780px) {
-    .movies-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-  
-  @media (min-width: 1024px) {
-    .movies-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-  
-  /* Empty state */
-  .empty-message {
-    text-align: center;
-    font-size: 1.25rem;
-    color: #7f8c8d;
-  }
+}
+
+/* Empty message */
+.empty-message {
+  text-align: center !important;
+  font-size: 1.25rem !important;
+  color: #7f8c8d !important;
+  margin: 0 auto !important;
+  padding: 2rem !important;
+  width: 100% !important;
+}
+
+/* Additional overrides for common issues */
+.watchlist-page * {
+  box-sizing: border-box;
+}
+
+/* Override any global styles that might interfere */
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* If your Movie component has specific styling, override it */
+.movies-grid .movie-card,
+.movies-grid .movie-item,
+.movies-grid .movie-component {
+  margin: 0 auto !important;
+  display: block !important;
+}
