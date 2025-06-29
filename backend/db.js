@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const MONGOOSE_URL = "mongodb://127.0.0.1:27017/UWatchFree";
+const MONGOOSE_URL = "mongodb+srv://vedarthselat17:OaGiIJlp69MuUoNI@cluster0.rwk2mqj.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
 const connectToMongo = async () => {
   try {
