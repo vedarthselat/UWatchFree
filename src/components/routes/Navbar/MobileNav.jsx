@@ -25,16 +25,16 @@ const MobileNav = ({ isOpen, toggleMenu, getSearchResults }) => {
       <div className="mobile-menu-container" onClick={(e) => e.stopPropagation()}>
         <ul className="mobile-ul">
           <NavLink to="/">
-            <span onClick={handleNavClick} className="menu-mobile-item">Home</span>
+            <span onClick={handleNavClick} className="menu-mobile-item">Movie Central</span>
           </NavLink>
           <NavLink to="/watchlist">
-            <span onClick={handleNavClick} className="menu-mobile-item">To-watch List</span>
+            <span onClick={handleNavClick} className="menu-mobile-item">My Watch List</span>
           </NavLink>
           <NavLink to="/completed_watchlist">
-            <span onClick={handleNavClick} className="menu-mobile-item">Completed Watchlist</span>
+            <span onClick={handleNavClick} className="menu-mobile-item">Movie History</span>
           </NavLink>
           <NavLink to="/addMovie">
-            <span onClick={handleNavClick} className="menu-mobile-item">Add A Movie</span>
+            <span onClick={handleNavClick} className="menu-mobile-item">Log A Movie</span>
           </NavLink>
 
           {isAuthenticated ? (

@@ -102,7 +102,7 @@ function Home() {
       </header>
       <main className="home-page">
         <div className="center-wrapper">
-          <h1 className="home-heading">Home Page</h1>
+          <h1 className="home-heading">Movie Central</h1>
         </div>
 
         <div className="content-wrapper">

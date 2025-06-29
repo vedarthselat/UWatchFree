@@ -159,7 +159,7 @@ export default function Watchlist() {
       </header>
       <main className="watchlist-page">
         <div className="center-wrapper">
-          <h1 className="watchlist-header">Watchlist</h1>
+          <h1 className="watchlist-header">My Watchlist</h1>
 
           <div className="filter-container">
             <label htmlFor="priority-select" className="filter-label">

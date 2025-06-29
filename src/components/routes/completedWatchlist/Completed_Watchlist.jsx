@@ -125,7 +125,7 @@ export default function Completed_Watchlist() {
       </header>
       <main className="completed-page">
         <div className="center-wrapper">
-          <h1 className="completed-title">Completed Watchlist</h1>
+          <h1 className="completed-title">Movie History</h1>
         </div>
 
         <div className="content-wrapper">

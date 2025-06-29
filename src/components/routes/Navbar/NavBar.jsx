@@ -44,16 +44,16 @@ function NavBar({ getSearchResults }) {
 
           <ul>
             <NavLink to="/">
-              <span className="menu-item">Home</span>
+              <span className="menu-item">Movie Central</span>
             </NavLink>
             <NavLink to="/watchlist">
-              <span className="menu-item">To-Watch List</span>
+              <span className="menu-item">My Watch List</span>
             </NavLink>
             <NavLink to="/completed_watchlist">
-              <span className="menu-item">Completed Watchlist</span>
+              <span className="menu-item"> Movie History</span>
             </NavLink>
             <NavLink to="/addMovie">
-              <span className="menu-item">Add A Movie</span>
+              <span className="menu-item">Log A Movie</span>
             </NavLink>
 
             <li className="search-container">
