@@ -26,7 +26,7 @@ export default function Enter_rating() {
   async function getMovieDetails() {
     try {
       console.log("Fetching movie details for ID:", id);
-      const response = await fetch(`http://localhost:4000/api/movies/id/${id}`, {
+      const response = await fetch(`https://uwatchfree-4.onrender.com/api/movies/id/${id}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -75,7 +75,7 @@ export default function Enter_rating() {
 
   async function getUserRating() {
     try {
-      const response = await fetch('http://localhost:4000/api/towatchlist', {
+      const response = await fetch('https://uwatchfree-4.onrender.com/api/towatchlist', {
         method: "GET",
         headers: {
           "auth-token": token,
@@ -139,7 +139,7 @@ export default function Enter_rating() {
   
     try {
       const response = await fetch(
-        `http://localhost:4000/api/completedwatchlist/${id}`,
+        `https://uwatchfree-4.onrender.com/api/completedwatchlist/${id}`,
         {
           method: "POST",
           headers: {

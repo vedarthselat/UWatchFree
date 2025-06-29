@@ -4,11 +4,12 @@ import NavBar from "../Navbar/NavBar";
 import Movie from "../Movies/Movie";
 import "./Home.css";
 
-const BASE_URL = "http://localhost:4000/api/movies/";
+const BASE_URL = "https://uwatchfree-4.onrender.com/api/movies/";
 
 function Home() {
   const [movies, setMovies] = useState([]);
   const [searchPerformed, setSearchPerformed] = useState(false);
+  const [loading, setLoading] = useState(true); // <-- New state
   const navigate = useNavigate();
 
   function bufferToBase64(buffer) {
@@ -17,6 +18,7 @@ function Home() {
   }
 
   async function getMovies() {
+    setLoading(true); // <-- Start loading
     try {
       const response = await fetch(BASE_URL);
       const data = await response.json();
@@ -38,9 +40,11 @@ function Home() {
       });
 
       setMovies(transformedMovies);
-      setSearchPerformed(false); // Reset flag
+      setSearchPerformed(false);
     } catch (error) {
       console.error("Error fetching movies:", error);
+    } finally {
+      setLoading(false); // <-- End loading
     }
   }
 
@@ -55,30 +59,35 @@ function Home() {
     }
 
     setSearchPerformed(true);
+    setLoading(true); // <-- Start loading
     try {
-      const response = await fetch(`http://localhost:4000/api/movies/${encodeURIComponent(titleEntered)}`);
+      const response = await fetch(`https://uwatchfree-4.onrender.com/api/movies/${encodeURIComponent(titleEntered)}`);
       const data = await response.json();
 
-      const transformedMovies = Array.isArray(data) ? data.map((movie) => {
-        const imageBuffer = movie.poster?.data?.data;
-        const contentType = movie.poster?.contentType || "image/jpeg";
-        let posterUrl = "";
+      const transformedMovies = Array.isArray(data)
+        ? data.map((movie) => {
+            const imageBuffer = movie.poster?.data?.data;
+            const contentType = movie.poster?.contentType || "image/jpeg";
+            let posterUrl = "";
 
-        if (imageBuffer && Array.isArray(imageBuffer)) {
-          const base64String = bufferToBase64(imageBuffer);
-          posterUrl = `data:${contentType};base64,${base64String}`;
-        }
+            if (imageBuffer && Array.isArray(imageBuffer)) {
+              const base64String = bufferToBase64(imageBuffer);
+              posterUrl = `data:${contentType};base64,${base64String}`;
+            }
 
-        return {
-          ...movie,
-          poster: posterUrl,
-        };
-      }) : [];
+            return {
+              ...movie,
+              poster: posterUrl,
+            };
+          })
+        : [];
 
       setMovies(transformedMovies);
     } catch (error) {
       console.error("Error fetching search results:", error);
-      setMovies([]); // Ensure it's empty on error
+      setMovies([]);
+    } finally {
+      setLoading(false); // <-- End loading
     }
   }
 
@@ -91,21 +100,30 @@ function Home() {
       <header>
         <NavBar getSearchResults={getSearchResults} />
       </header>
-      <main>
-        <h1 className="home-heading">Home Page</h1>
-        {searchPerformed && movies.length === 0 ? (
-          <p style={{ textAlign: "center", marginTop: "2rem", fontSize: "1.2rem", color: "red" }}>
-            Sorry, no such movie exists.
-          </p>
-        ) : (
-          <div className="movie-grid">
-            {movies.map((movie) => (
-              <div key={movie._id} className="movie-card" onClick={() => handleClick(movie._id)}>
-                <Movie movie={{ ...movie, type: "home" }} />
-              </div>
-            ))}
-          </div>
-        )}
+      <main className="home-page">
+        <div className="center-wrapper">
+          <h1 className="home-heading">Home Page</h1>
+        </div>
+
+        <div className="content-wrapper">
+          {loading ? (
+            <p className="status-message">Loading...</p>
+          ) : searchPerformed && movies.length === 0 ? (
+            <p className="status-message" style={{ color: "red" }}>
+              Sorry, no such movie exists.
+            </p>
+          ) : movies.length === 0 ? (
+            <p className="status-message">No movies available.</p>
+          ) : (
+            <div className="movie-grid">
+              {movies.map((movie) => (
+                <div key={movie._id} className="movie-card" onClick={() => handleClick(movie._id)}>
+                  <Movie movie={{ ...movie, type: "home" }} />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </main>
     </>
   );

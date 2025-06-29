@@ -80,7 +80,7 @@ export default function AddMovie() {
     }
 
     try {
-      const response = await fetch("http://localhost:4000/api/movies/addMovie", {
+      const response = await fetch("https://uwatchfree-4.onrender.com/api/movies/addMovie", {
         method: "POST",
         headers: {
           "auth-token": token,

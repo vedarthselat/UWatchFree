@@ -7,12 +7,15 @@ import "./Completed_Watchlist.css";
 
 export default function Completed_Watchlist() {
   const [movies, setMovies] = useState([]);
+  const [searchPerformed, setSearchPerformed] = useState(false);
+  const [loading, setLoading] = useState(true); // ✅ loading state
   const { token } = useContext(AuthContext);
   const navigate = useNavigate();
-  const BASE_URL = "http://localhost:4000/api/completedwatchlist/";
+  const BASE_URL = "https://uwatchfree-4.onrender.com/api/completedwatchlist/";
 
   async function getMovies() {
     try {
+      setLoading(true); // start loading
       const response = await fetch(BASE_URL, {
         method: "GET",
         headers: {
@@ -21,9 +24,7 @@ export default function Completed_Watchlist() {
         },
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
       const data = await response.json();
       const watchlist = data["completedWatchList"];
@@ -31,11 +32,7 @@ export default function Completed_Watchlist() {
       const formattedMovies = watchlist
         .map((item) => {
           const movieData = item.movie_id;
-
-          if (!movieData) {
-            console.warn("No movie data found in item:", item);
-            return null;
-          }
+          if (!movieData) return null;
 
           return {
             _id: movieData._id,
@@ -52,20 +49,25 @@ export default function Completed_Watchlist() {
         .filter(Boolean);
 
       setMovies(formattedMovies);
+      setSearchPerformed(false);
     } catch (error) {
       console.error("Error fetching completed watchlist movies:", error);
+    } finally {
+      setLoading(false); // end loading
     }
   }
 
-  // 🔍 SEARCH HANDLER FUNCTION
   async function getSearchResults(query) {
-    if (!query) {
-      getMovies(); // reset to full list if query is empty
+    if (!query.trim()) {
+      await getMovies();
       return;
     }
 
+    setSearchPerformed(true);
+
     try {
-      const response = await fetch(`${BASE_URL}search/${query}`, {
+      setLoading(true); // start loading
+      const response = await fetch(`${BASE_URL}search/${encodeURIComponent(query)}`, {
         method: "GET",
         headers: {
           "auth-token": token,
@@ -74,7 +76,7 @@ export default function Completed_Watchlist() {
       });
 
       if (!response.ok) {
-        setMovies([]); // if 404 or error, show nothing
+        setMovies([]);
         return;
       }
 
@@ -83,7 +85,6 @@ export default function Completed_Watchlist() {
       const formattedMovies = data
         .map((item) => {
           const movieData = item.movie_id;
-
           if (!movieData) return null;
 
           return {
@@ -104,6 +105,8 @@ export default function Completed_Watchlist() {
     } catch (error) {
       console.error("Error searching completed watchlist movies:", error);
       setMovies([]);
+    } finally {
+      setLoading(false); // end loading
     }
   }
 
@@ -120,20 +123,30 @@ export default function Completed_Watchlist() {
       <header>
         <NavBar getSearchResults={getSearchResults} />
       </header>
-      <main className="completed-watchlist-main">
-        <h1 className="watchlist-title1">Completed Watchlist</h1>
+      <main className="completed-page">
+        <div className="center-wrapper">
+          <h1 className="completed-title">Completed Watchlist</h1>
+        </div>
 
-        {movies.length === 0 ? (
-          <p className="no-movies-msg">No movies found.</p>
-        ) : (
-          <div className="movie-grid2">
-            {movies.map((movie) => (
-              <div key={movie._id} onClick={() => handleClick(movie._id)}>
-                <Movie movie={movie} />
-              </div>
-            ))}
-          </div>
-        )}
+        <div className="content-wrapper">
+          {loading ? (
+            <p className="empty-message">Loading...</p>
+          ) : searchPerformed && movies.length === 0 ? (
+            <p className="empty-message" style={{ color: "red" }}>
+              Sorry, no matching movie exists in your completed watchlist.
+            </p>
+          ) : movies.length === 0 ? (
+            <p className="empty-message">No movies found.</p>
+          ) : (
+            <div className="completed-grid">
+              {movies.map((movie) => (
+                <div key={movie._id} onClick={() => handleClick(movie._id)}>
+                  <Movie movie={movie} />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </main>
     </>
   );

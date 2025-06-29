@@ -17,7 +17,7 @@ function SignUpForm() {
     
     if (!Object.keys(errors).length) {
       try {
-        const response = await fetch("http://localhost:4000/api/users/register", {
+        const response = await fetch("https://uwatchfree-4.onrender.com/api/users/register", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

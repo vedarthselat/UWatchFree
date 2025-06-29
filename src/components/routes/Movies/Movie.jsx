@@ -22,7 +22,7 @@ function Movie({ movie, onRemove }) {
 
     try {
       const response = await fetch(
-        `http://localhost:4000/api/towatchlist/${movie._id}`,
+        `https://uwatchfree-4.onrender.com/api/towatchlist/${movie._id}`,
         {
           method: "POST",
           headers: {
@@ -53,7 +53,7 @@ function Movie({ movie, onRemove }) {
     ev.stopPropagation();
     try {
       const response = await fetch(
-        `http://localhost:4000/api/towatchlist/${movie.movie_id}`,
+        `https://uwatchfree-4.onrender.com/api/towatchlist/${movie.movie_id}`,
         {
           method: "DELETE",
           headers: {

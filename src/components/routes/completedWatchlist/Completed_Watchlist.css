@@ -1,61 +1,107 @@
-.completed-watchlist-main {
-    padding: 1rem;
-  }
-  
-  .watchlist-title1 {
-    font-size: 2.3rem; /* text-3xl */
-    font-weight: 900;
-    text-align: center;
-    margin: 5rem 0 2rem 0;
-    color:black;
+.completed-page {
+  width: 100vw;
+  min-height: 100vh;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  padding: 2rem;
+  margin: 0 !important;
+  box-sizing: border-box;
+}
 
+/* Center wrapper */
+.center-wrapper {
+  width: 100% !important;
+  max-width: 1200px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  margin: 0 auto 3rem auto !important;
+}
+
+/* Heading */
+.completed-title {
+  font-size: 2.5rem !important;
+  font-weight: bold !important;
+  color: #2c3e50 !important;
+  margin: 2em auto 2rem auto !important;
+  text-align: center !important;
+  width: 100% !important;
+}
+
+/* Content wrapper - force center */
+.content-wrapper {
+  width: 100% !important;
+  max-width: 1200px !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin: 0 auto !important;
+}
+
+/* Grid of movies */
+.completed-grid {
+  display: grid !important;
+  grid-template-columns: repeat(1, 1fr) !important;
+  gap: 2rem !important;
+  width: 100% !important;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+  justify-content: center !important;
+  justify-items: center !important;
+  place-items: center !important;
+  text-align: center !important;
+}
+
+.completed-grid > div {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin: 0 auto !important;
+}
+
+/* Responsive grid */
+@media (min-width: 780px) {
+  .completed-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
   }
-  
-  .movie-grid2 {
-    display: grid;
-    grid-template-columns: repeat(1, minmax(0, 1fr));
-    gap: 1.5rem;
-    padding: 0 1rem;
+}
+
+@media (min-width: 1024px) {
+  .completed-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
   }
-  
-  @media (min-width: 640px) {
-    .movie-grid2 {
-      grid-template-columns: repeat(1, minmax(0, 1fr));
-    }
-  }
-  
-  @media (min-width: 750px) {
-    .movie-grid2 {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  
-  @media (min-width: 1024px) {
-    .movie-grid2 {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-  }
-  
-  /* Enforce size limits for all children of movie-grid */
-  .movie-grid2 > div {
-    overflow: hidden;
-    border-radius: 0.75rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    background: #fff;
-    transition: transform 0.2s ease-in-out;
-  }
-  
-  .movie-grid2 > div:hover {
-    transform: scale(1.02);
-  }
-  
-  /* Ensure the movie-card image stays contained */
-  .movie-img {
-    width: 100%;
-    height: auto;
-    display: block;
-    object-fit: cover;
-    max-height: 450px;
-    border-radius: 0.5rem 0.5rem 0 0;
-  }
-  
+}
+
+/* Empty message */
+.empty-message {
+  text-align: center !important;
+  font-size: 1.25rem !important;
+  color: #7f8c8d !important;
+  margin: 0 auto !important;
+  padding: 2rem !important;
+  width: 100% !important;
+}
+
+/* Additional resets */
+.completed-page * {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.empty-message {
+  text-align: center !important;
+  font-size: 1.25rem !important;
+  color: #7f8c8d !important;
+  margin: 0 auto !important;
+  padding: 2rem !important;
+  width: 100% !important;
+}

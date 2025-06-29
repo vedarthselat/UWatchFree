@@ -17,7 +17,7 @@ export default function CompletedMovieDetails() {
     async function fetchCompletedWatchlistData() {
       try {
         const response = await fetch(
-          `http://localhost:4000/api/completedwatchlist/`,
+          `https://uwatchfree-4.onrender.com/api/completedwatchlist/`,
           {
             method: "GET",
             headers: {
@@ -78,7 +78,7 @@ export default function CompletedMovieDetails() {
   const handleIncrement = async () => {
     try {
       const response = await fetch(
-        `http://localhost:4000/api/completedwatchlist/entries/${id}/times-watched`,
+        `https://uwatchfree-4.onrender.com/api/completedwatchlist/entries/${id}/times-watched`,
         {
           method: "PATCH",
           headers: {

@@ -4,7 +4,7 @@ import { AuthContext } from "../Authenticator/Authenticator";
 import "./LoginForm.css";
 import NavBar from "../Navbar/NavBar";
 
-const BASE_URL = "http://localhost:4000/api/users/login";
+const BASE_URL = "https://uwatchfree-4.onrender.com/api/users/login";
 
 function LoginForm() {
   const [err, setErr] = useState({});

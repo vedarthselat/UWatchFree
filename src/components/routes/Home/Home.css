@@ -1,66 +1,112 @@
-/* Home.css */
+/* Home page container */
+.home-page {
+  width: 100vw;
+  min-height: 100vh;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  padding: 2rem;
+  margin: 0 !important;
+  box-sizing: border-box;
+}
 
+/* Wrapper to center heading */
+.center-wrapper {
+  width: 100% !important;
+  max-width: 1200px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  margin: 0 auto 3rem auto !important;
+}
+
+/* Heading */
 .home-heading {
-  font-size: 3rem;
-  font-weight: bold;
-  text-align: center;
-  margin: 6rem 0 1rem 0;
-  color:black;
+  font-size: 2.5rem !important;
+  font-weight: bold !important;
+  color: #2c3e50 !important;
+  margin: 2em auto 1.5rem auto !important;
+  text-align: center !important;
+  width: 100% !important;
 }
 
+/* Content wrapper */
+.content-wrapper {
+  width: 100% !important;
+  max-width: 1200px !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin: 0 auto !important;
+}
+
+/* Movie grid */
 .movie-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  padding: 0 1rem;
-  margin:auto;
-  max-width:100em;
-  justify-content: center;
+  display: grid !important;
+  grid-template-columns: repeat(1, 1fr) !important;
+  gap: 2rem !important;
+  width: 100% !important;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+  justify-content: center !important;
+  justify-items: center !important;
+  place-items: center !important;
+  text-align: center !important;
 }
 
+/* Each movie card */
 .movie-card {
   cursor: pointer;
   transition: transform 0.2s ease-in-out;
-  margin:1em;
+  margin: 1em;
 }
 
 .movie-card:hover {
   transform: scale(1.03);
 }
 
-
-@media(max-width: 1100px){
-  .movie-grid{
-      grid-template-columns: repeat(2, 1fr);
+/* Responsive grid */
+@media (min-width: 780px) {
+  .movie-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
   }
 }
 
-@media(max-width:680px){
-  .movie-grid{
-      grid-template-columns: 1fr;
-      justify-items: center; /* This centers the items in single column layout */
-  }
-  .movie-card{
-     margin:2em;
-  }
-}
-@media(max-width:541px){
-  .movie-card{
-  margin:2em;
+@media (min-width: 1024px) {
+  .movie-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
   }
 }
 
-@media(max-width:430px){
-  .movie-card{
-      margin:0.4em;
-      width:22em;
-  }
-
+/* Empty message styles */
+.empty-message {
+  text-align: center !important;
+  font-size: 1.25rem !important;
+  color: #7f8c8d !important;
+  margin: 0 auto !important;
+  padding: 2rem !important;
+  width: 100% !important;
 }
 
-@media(max-width:400px){
-  .movie-card{
-      margin:0.2em;
-      width:20em;
-  }
+/* Fixes for global spacing issues */
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.home-page * {
+  box-sizing: border-box;
+}
+
+/* New class for loading and empty messages */
+.status-message {
+  text-align: center !important;
+  font-size: 1.25rem !important;
+  color: #7f8c8d !important;
+  margin: 0 auto !important;
+  padding: 2rem !important;
+  width: 100% !important;
 }

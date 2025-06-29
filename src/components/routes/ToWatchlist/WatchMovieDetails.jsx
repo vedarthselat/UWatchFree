@@ -25,7 +25,7 @@ export default function WatchMovieDetails() {
   useEffect(() => {
     async function fetchEntry() {
       try {
-        const response = await fetch(`http://localhost:4000/api/towatchlist`, {
+        const response = await fetch(`https://uwatchfree-4.onrender.com/api/towatchlist`, {
           method: "GET",
           headers: {
             "auth-token": token,
@@ -69,7 +69,7 @@ export default function WatchMovieDetails() {
       const movieId = entry.movie_id._id || entry.movie_id; // ✅ Critical fix here
 
       const response = await fetch(
-        `http://localhost:4000/api/towatchlist/${movieId}/priority`,
+        `https://uwatchfree-4.onrender.com/api/towatchlist/${movieId}/priority`,
         {
           method: "PATCH",
           headers: {

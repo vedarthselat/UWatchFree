@@ -10,10 +10,11 @@ export default function Watchlist() {
   const [filteredMovies, setFilteredMovies] = useState([]);
   const [priority, setPriority] = useState("None");
   const [searchPerformed, setSearchPerformed] = useState(false);
+  const [loading, setLoading] = useState(true); // 🔁 Loading state
 
   const useAuth = useContext(AuthContext);
   const navigate = useNavigate();
-  const BASE_URL = "http://localhost:4000/api/towatchlist";
+  const BASE_URL = "https://uwatchfree-4.onrender.com/api/towatchlist";
 
   function arrayBufferToBase64(buffer) {
     let binary = "";
@@ -24,6 +25,7 @@ export default function Watchlist() {
 
   async function getMovies() {
     try {
+      setLoading(true);
       const response = await fetch(BASE_URL, {
         method: "GET",
         headers: {
@@ -45,9 +47,9 @@ export default function Watchlist() {
 
         return {
           ...movie,
-          movie_id: movie._id, // ✅ Actual movie ID used for DELETE
+          movie_id: movie._id,
           poster: posterUrl,
-          _id: entry._id, // towatchlist entry ID
+          _id: entry._id,
           priority: entry.priority,
           notes: entry.notes,
           type: "watchList",
@@ -59,6 +61,8 @@ export default function Watchlist() {
       setSearchPerformed(false);
     } catch (error) {
       console.error("Error fetching watchlist movies:", error);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -70,6 +74,7 @@ export default function Watchlist() {
 
     setSearchPerformed(true);
     try {
+      setLoading(true);
       const response = await fetch(`${BASE_URL}/search/${encodeURIComponent(titleEntered)}`, {
         headers: {
           "auth-token": useAuth.token,
@@ -111,6 +116,8 @@ export default function Watchlist() {
     } catch (error) {
       console.error("Error during watchlist search:", error);
       setFilteredMovies([]);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -175,7 +182,9 @@ export default function Watchlist() {
         </div>
 
         <div className="content-wrapper">
-          {searchPerformed && filteredMovies.length === 0 ? (
+          {loading ? (
+            <p className="empty-message">Loading...</p>
+          ) : searchPerformed && filteredMovies.length === 0 ? (
             <p className="empty-message" style={{ color: "red" }}>
               Sorry, no matching movie exists in your watchlist.
             </p>
