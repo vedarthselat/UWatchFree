@@ -119,8 +119,8 @@ router.patch("/entries/:movie_id/rating", fetchuser, async (req, res) => {
   try {
     const entry = await CompletedWatchList.findOneAndUpdate(
       { user_id: req.user.id, movie_id },
-      { rating },
-      { new: true }
+      { rating },  // Shorthand for { $set: { rating: rating } }
+      { new: true } //Makes MongoDB return the updated document instead of the old one.
     );
 
     if (!entry) return res.status(404).json({ error: "Entry not found" });
