@@ -4,7 +4,7 @@ import NavBar from "../Navbar/NavBar";
 import Movie from "../Movies/Movie";
 import "./Home.css";
 
-const BASE_URL = "https://uwatchfree-4.onrender.com/api/movies/";
+const BASE_URL = "https://uwatchfree-3.onrender.com/api/movies/";
 
 function Home() {
   const [movies, setMovies] = useState([]);
@@ -61,7 +61,7 @@ function Home() {
     setSearchPerformed(true);
     setLoading(true);
     try {
-      const response = await fetch(`https://uwatchfree-4.onrender.com/api/movies/${encodeURIComponent(titleEntered)}`);
+      const response = await fetch(`https://uwatchfree-3.onrender.com/api/movies/${encodeURIComponent(titleEntered)}`);
       const data = await response.json();
 
       const transformedMovies = Array.isArray(data)

@@ -22,7 +22,7 @@ export default function MovieDetails() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch(`https://uwatchfree-4.onrender.com/api/movies/id/${id}`);
+        const res = await fetch(`https://uwatchfree-3.onrender.com/api/movies/id/${id}`);
         if (!res.ok) throw new Error(res.statusText);
         const data = await res.json();
         setMovie(data);

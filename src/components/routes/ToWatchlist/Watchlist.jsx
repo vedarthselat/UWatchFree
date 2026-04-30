@@ -14,7 +14,7 @@ export default function Watchlist() {
 
   const useAuth = useContext(AuthContext);
   const navigate = useNavigate();
-  const BASE_URL = "https://uwatchfree-4.onrender.com/api/towatchlist";
+  const BASE_URL = "https://uwatchfree-3.onrender.com/api/towatchlist";
 
   function arrayBufferToBase64(buffer) {
     let binary = "";

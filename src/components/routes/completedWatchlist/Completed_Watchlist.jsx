@@ -11,7 +11,7 @@ export default function Completed_Watchlist() {
   const [loading, setLoading] = useState(true); // ✅ loading state
   const { token } = useContext(AuthContext);
   const navigate = useNavigate();
-  const BASE_URL = "https://uwatchfree-4.onrender.com/api/completedwatchlist/";
+  const BASE_URL = "https://uwatchfree-3.onrender.com/api/completedwatchlist/";
 
   async function getMovies() {
     try {
