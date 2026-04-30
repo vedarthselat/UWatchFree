@@ -14,7 +14,10 @@ const app = express();
 
 // Middleware setup
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: [
+    "http://localhost:5173",
+    "https://uwatchfree1.netlify.app"
+  ],
   credentials: true
 }));
 
